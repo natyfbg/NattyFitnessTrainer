@@ -1,0 +1,40 @@
+# dependencies
+node_modules
+
+# next.js
+.next
+out
+
+# production
+build
+
+# OpenNext / Cloudflare
+.open-next
+.wrangler
+cloudflare-env.d.ts
+
+# testing / coverage
+coverage
+
+# misc
+.DS_Store
+*.pem
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files
+.env*
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# IDE
+.idea
+
+# package manager
+package-lock.json
