@@ -35,3 +35,13 @@ In addition to the implementation rules in AGENTS.md above, when working in this
 - Do not publish or expose client photos or stories without explicit permission.
 - MDX content and article metadata must remain typed and build-safe for Cloudflare — no runtime filesystem reads, no untyped `any` escape hatches for content data.
 - Preserve the Git-managed content architecture (Version 1: Git + MDX + repository images) unless explicitly approved otherwise.
+
+## Visual system rules
+
+- Preserve the semantic design tokens in `src/app/globals.css` (`--bg`, `--text`, `--gold`, `--border`, etc., mapped via Tailwind's `@theme`) — use the existing token utility classes rather than introducing raw hex values or ad hoc colors in components. See `docs/design-system.md`.
+- Maintain mobile-first responsive behavior — build the small-viewport layout first, then add `sm`/`md`/`lg` refinements, not the reverse.
+- Do not introduce a second, unrelated visual system (new color palette, type scale, spacing scale, or component library) without updating `docs/design-system.md` first.
+- Do not invent content to fill empty UI — an honest "coming soon" or empty state is always preferable to a fabricated placeholder.
+- Never use fake testimonials, client photos, or invented metrics/statistics to make a section feel more populated.
+- Keep Server Components as the default; only introduce a Client Component when a feature genuinely requires browser interactivity that native HTML (e.g. `<details>`/`<summary>`) can't provide.
+- Avoid adding UI/animation/icon-library dependencies — the existing token system, Tailwind utilities, and small inline SVGs are sufficient for this project's needs.

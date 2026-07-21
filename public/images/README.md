@@ -27,11 +27,32 @@ Repository-managed photography and graphics for the public site (Version 1 of th
 
 The following shots are planned but not yet captured; do not fabricate placeholders for them:
 
-- Horizontal desktop hero
-- Vertical mobile hero
-- Trainer headshot
-- Training/client interaction
-- Exercise demonstration
-- Online coaching / app context
-- Bay Area / outdoor fitness
-- Neutral-background service photographs
+- Direct trainer portrait (neutral background)
+- Candid client interaction (with explicit client permission only)
+- Exercise/training demonstration
+- Equipment detail
+- Laptop / online-coaching context
+- Outdoor Bay Area fitness
+- Horizontal **and** vertical versions of important scenes, since the homepage uses both orientations (see the inventory below)
+
+## Homepage photography inventory
+
+Each row is a configurable slot in `src/content/media.ts` (`homeMedia`). Until a slot has a real image, the homepage shows a tasteful branded fallback via `PhotoFrame` (`src/components/photo-frame.tsx`) — see `docs/design-system.md` for how that works. To add a photo, drop the optimized file in the matching folder below, then set that slot's `src`/`alt` (and optional `width`/`height`/`objectPosition`) in `media.ts`.
+
+| Slot (`homeMedia.*`)       | Folder      | Approx. crop                                 | Notes                                                                                                  |
+| -------------------------- | ----------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `heroPortrait`             | `home/`     | Vertical 4:5                                 | Primary hero image — the trainer, in frame, not a stock photo.                                         |
+| `heroDetail`               | `home/`     | Vertical or square detail                    | Optional smaller accent shot (e.g. a training/equipment detail); only shown at desktop widths.         |
+| `coachingAction`           | `coaching/` | Horizontal 3:2 (wide)                        | One wide supporting image below the coaching-style cards.                                              |
+| `aboutTrainerPortrait`     | `about/`    | Vertical 4:5                                 | First-priority About section image.                                                                    |
+| `aboutCoachingInteraction` | `about/`    | Vertical 4:5                                 | Used only if a trainer portrait isn't set (requires client permission).                                |
+| `aboutTrainingAction`      | `about/`    | Vertical 4:5                                 | Used only if neither of the above is set.                                                              |
+| `lifestyleBand`            | `home/`     | Wide 16:9 or 2:1                             | Full-width band between "How It Works" and "About" — training environment or Bay Area outdoor fitness. |
+| `nfgScreenshotPrimary`     | `nfg-app/`  | Native mobile screenshot proportions (~9:16) | Real app screenshot once the app has a real UI to show.                                                |
+| `nfgScreenshotSecondary`   | `nfg-app/`  | Native mobile screenshot proportions (~9:16) | Optional second screenshot; only shown at desktop widths.                                              |
+
+Reminders:
+
+- Explicit permission is required before publishing any client photograph — the `testimonials/` and `about/` (coaching-interaction) folders are the ones most likely to involve a client, so double-check before adding anything there.
+- Archive the original, full-resolution photographs outside this repository (cloud storage or a local archive) — only optimized, web-ready versions get committed here.
+- Use descriptive kebab-case filenames (e.g. `hero-portrait-1200x1500.webp`), not camera-generated names.
