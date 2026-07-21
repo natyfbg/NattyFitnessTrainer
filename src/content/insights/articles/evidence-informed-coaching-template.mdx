@@ -1,0 +1,49 @@
+export const frontmatter = {
+  title: "Evidence-Informed Coaching Template (Internal, Not Published)",
+  description:
+    "An internal content template used to validate the Insights article pipeline. This is not a real article and is never shown in production.",
+  category: "training-science",
+  tags: ["internal-template", "content-pipeline"],
+  author: { name: "Internal Content Template" },
+  publishedAt: "2026-07-20",
+  draft: true,
+  references: [
+    {
+      label:
+        "Placeholder reference — replace with a real, actually-used source when writing a real article.",
+    },
+  ],
+};
+
+> **Internal template — not a published article.** This file exists only to validate the Insights content pipeline (draft handling, MDX rendering, metadata, references, and reviewer structure). It is marked `draft: true` and must never appear in a production article listing.
+
+## Purpose of This Template
+
+This draft demonstrates how a real Insights article is structured end to end: headings, lists, a blockquote, a references section, and article metadata (author, optional reviewer, category, tags, dates).
+
+## Distinguishing Evidence, Interpretation, and Opinion
+
+A real article should clearly separate three kinds of claims:
+
+1. **Research-supported information** — findings directly attributable to a cited study or established scientific consensus.
+2. **Professional interpretation** — the author's or reviewer's read on what the evidence means in practice, clearly framed as interpretation rather than fact.
+3. **Personal opinion** — a training philosophy or preference that is not itself a research claim.
+
+> Example phrasing to reuse in real articles: "Research suggests X (see References). In practice, that has generally meant Y for clients — that's interpretation, not a guarantee. My personal preference is Z, which is an opinion, not a scientific claim."
+
+### Example Section List
+
+A typical article might include:
+
+- A short introduction stating the question the article answers
+- A section for what the evidence shows, with citations
+- A section for practical interpretation
+- An optional section for the author's opinion, clearly labeled as such
+
+## Reviewer Structure (Intentionally Not Populated Here)
+
+Articles support an optional `reviewer` field in their frontmatter, used only when a named medical or fitness professional has actually reviewed that specific article. This template intentionally leaves `reviewer` unset — no one has reviewed it, because it is not a real article. Never add a reviewer to a real article unless that person actually reviewed it.
+
+## References
+
+This template's reference list above is a placeholder to demonstrate how references render. A real article's references must correspond only to sources actually used to write it.
