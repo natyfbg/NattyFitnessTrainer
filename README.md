@@ -52,6 +52,18 @@ This runs an OpenNext build followed by a local Cloudflare Workers preview serve
 
 Deployment and upload (`npm run deploy`, `npm run upload`) are separate, explicit actions and are not part of routine local development.
 
+## Deployment
+
+- `npm run preview` — build and run the app locally in the Cloudflare Workers runtime.
+- `npm run upload` — build and upload a new Worker **version** with a preview URL, without promoting it to production.
+- `npm run deploy` — build and deploy, **promoting the new version to production**. This changes the live Worker.
+
+`main` is the production branch — production deployments should only be made from a clean, reviewed `main`.
+
+See [`docs/deployment.md`](docs/deployment.md) for the full deployment guide (branch workflow, Workers Builds configuration, environment/secrets management, caching, and rollback).
+
+> **Warning:** `npm run deploy` changes the live Worker at `https://natty-fitness-trainer.natyfbg.workers.dev`. Run it deliberately, not as part of routine local development.
+
 ## Architecture Principles
 
 - **SEO-first** — pages are structured and optimized for search visibility.
