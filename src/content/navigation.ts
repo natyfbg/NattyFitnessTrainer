@@ -8,3 +8,15 @@ export const primaryNavigation: readonly NavItem[] = [
   { label: "Home", href: "/" },
   { label: "Insights", href: "/insights" },
 ] as const;
+
+/**
+ * Header navigation. Mixes the real /insights route with homepage anchors —
+ * anchors use a leading "/" so they resolve correctly (navigate home, then
+ * scroll) from any page, not just from "/" itself.
+ */
+export const headerNavigation: readonly NavItem[] = [
+  { label: "Coaching", href: "/#coaching" },
+  { label: "About", href: "/#about" },
+  { label: "Insights", href: "/insights" },
+  { label: "FAQ", href: "/#faq" },
+] as const;
