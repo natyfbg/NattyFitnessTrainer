@@ -21,4 +21,16 @@ These rules apply to Codex and other coding agents working in this repository.
 - Before reporting a task complete, run `npm run format:check`, `npm run lint`, `npm run typecheck`, and `npm run build`, and resolve any failures.
 - Never commit, push, deploy, or modify Git history unless explicitly requested by the user.
 
+## Deployment-hardening rules
+
+- Never deploy, upload, commit, push, merge, or rewrite Git history unless explicitly requested.
+- Never expose, print, or commit secrets.
+- Preserve the OpenNext and Cloudflare Workers architecture.
+- Preserve the Worker name and the match between it and the `WORKER_SELF_REFERENCE` service binding.
+- Preserve the Webpack flags (`--webpack` on `dev`/`build`) unless an explicitly approved compatibility migration replaces them.
+- `main` must remain production-ready.
+- Deployment-related changes require `npm run check`, `npm run build`, and a manual `npm run preview` before production review.
+- Never use production client data in previews.
+- Never introduce a production environment variable or binding without documenting it.
+
 <!-- END:nextjs-agent-rules -->
