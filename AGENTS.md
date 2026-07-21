@@ -33,4 +33,15 @@ These rules apply to Codex and other coding agents working in this repository.
 - Never use production client data in previews.
 - Never introduce a production environment variable or binding without documenting it.
 
+## Content integrity rules
+
+- Centralized content files under `src/content/` are the source of truth for business copy — do not hardcode business copy directly in components/pages instead of reading it from there.
+- Never invent contact information, testimonials, credentials, prices, service locations, reviewer identities, citations, or medical claims. Use `null`/`undefined` for unknown values instead of a placeholder.
+- Draft articles (`draft: true`) must not be exposed in production — verify this through the existing registry/route logic rather than adding a separate, divergent check.
+- Article references must correspond to sources actually used to write that article.
+- Do not represent opinion as established evidence; keep research-supported information, professional interpretation, and personal opinion clearly distinguishable.
+- Do not publish or expose client photos or stories without explicit permission.
+- MDX content and article metadata must remain typed and build-safe for Cloudflare — no runtime filesystem reads, no untyped `any` escape hatches for content data.
+- Preserve the Git-managed content architecture (Version 1: Git + MDX + repository images) unless explicitly approved otherwise.
+
 <!-- END:nextjs-agent-rules -->
