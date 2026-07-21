@@ -64,6 +64,10 @@ See [`docs/deployment.md`](docs/deployment.md) for the full deployment guide (br
 
 > **Warning:** `npm run deploy` changes the live Worker at `https://natty-fitness-trainer.natyfbg.workers.dev`. Run it deliberately, not as part of routine local development.
 
+## Content Management
+
+Business copy is centralized as typed content under `src/content/`, and articles live under `/insights` as Git-managed MDX files. See [`docs/content-management.md`](docs/content-management.md) for how to update trainer/business information, add photography, and create or publish an Insights article.
+
 ## Architecture Principles
 
 - **SEO-first** — pages are structured and optimized for search visibility.
