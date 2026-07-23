@@ -1,7 +1,8 @@
 /**
- * Centralized homepage media configuration. Every slot is `null` until a
- * real, repository-managed image (see public/images/README.md) is added —
- * never a fake or stock path. Components read these through PhotoFrame
+ * Centralized media configuration for the homepage plus the dedicated
+ * /coaching and /about pages. Every slot is `null` until a real,
+ * repository-managed image (see public/images/README.md) is added — never
+ * a fake or stock path. Components read these through PhotoFrame
  * (src/components/photo-frame.tsx), which only renders next/image when a
  * slot is non-null and otherwise shows a branded fallback.
  */
@@ -36,6 +37,20 @@ export interface HomeMedia {
   readonly nfgScreenshotPrimary: HomeImage | null;
   /** Optional secondary NFG app screenshot. */
   readonly nfgScreenshotSecondary: HomeImage | null;
+
+  /** /coaching page hero visual. */
+  readonly coachingHeroImage: HomeImage | null;
+  /** /coaching page — training environment/equipment photograph. */
+  readonly coachingEnvironmentImage: HomeImage | null;
+
+  /** /about page hero portrait (separate from the homepage About teaser's slots). */
+  readonly aboutPageHeroPortrait: HomeImage | null;
+  /** /about page — training-action photograph. */
+  readonly aboutPageTrainingAction: HomeImage | null;
+  /** /about page — candid coaching-interaction photograph (requires client permission). */
+  readonly aboutPageCoachingInteraction: HomeImage | null;
+  /** /about page — technical/online-coaching-context photograph. */
+  readonly aboutPageTechnicalScene: HomeImage | null;
 }
 
 export const homeMedia: HomeMedia = {
@@ -48,6 +63,12 @@ export const homeMedia: HomeMedia = {
   lifestyleBand: null,
   nfgScreenshotPrimary: null,
   nfgScreenshotSecondary: null,
+  coachingHeroImage: null,
+  coachingEnvironmentImage: null,
+  aboutPageHeroPortrait: null,
+  aboutPageTrainingAction: null,
+  aboutPageCoachingInteraction: null,
+  aboutPageTechnicalScene: null,
 };
 
 /**

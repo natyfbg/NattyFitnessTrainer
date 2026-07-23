@@ -1,6 +1,7 @@
 import { Section } from "@/components/section";
 import { SectionHeading } from "@/components/section-heading";
 import { PhotoFrame } from "@/components/photo-frame";
+import { CtaLink } from "@/components/cta-link";
 import { trainingStyles, coachingBenefits } from "@/content/coaching";
 import { coachingSectionIntro } from "@/content/home";
 import { homeMedia } from "@/content/media";
@@ -49,6 +50,9 @@ export function CoachingStyles() {
           sizes="(min-width: 1024px) 1024px, 100vw"
         />
       </div>
+      <CtaLink href="/coaching" variant="secondary" className="mt-8">
+        Explore Coaching in Detail
+      </CtaLink>
     </Section>
   );
 }

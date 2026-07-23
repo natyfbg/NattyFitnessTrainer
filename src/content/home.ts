@@ -51,8 +51,8 @@ export const aboutSectionIntro: SectionIntro = {
 };
 
 export const aboutCta: HomeCta = {
-  label: "Book a Free Consultation",
-  href: "/consultation",
+  label: "Learn More About Nathnael",
+  href: "/about",
 };
 
 export const nfgAppSectionIntro: SectionIntro = {

@@ -2,15 +2,15 @@ import { Section } from "@/components/section";
 import { SectionHeading } from "@/components/section-heading";
 import { FaqAccordion } from "@/components/faq-accordion";
 import { faqItems } from "@/content/faq";
-import { faqSectionIntro } from "@/content/home";
+import { coachingFaqIntro } from "@/content/coaching-page";
 
-export function FaqPreview() {
+export function CoachingFaq() {
   return (
-    <Section id="faq" tone="elevated" aria-labelledby="faq-heading" narrow>
+    <Section id="coaching-faq" aria-labelledby="coaching-faq-heading" narrow>
       <SectionHeading
-        id="faq-heading"
-        eyebrow={faqSectionIntro.eyebrow}
-        heading={faqSectionIntro.heading}
+        id="coaching-faq-heading"
+        eyebrow={coachingFaqIntro.eyebrow}
+        heading={coachingFaqIntro.heading}
       />
       <FaqAccordion items={faqItems} />
     </Section>

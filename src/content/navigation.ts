@@ -11,13 +11,14 @@ export const primaryNavigation: readonly NavItem[] = [
 ] as const;
 
 /**
- * Header navigation. Mixes the real /insights route with homepage anchors —
- * anchors use a leading "/" so they resolve correctly (navigate home, then
- * scroll) from any page, not just from "/" itself.
+ * Header navigation. Coaching, About, and Insights are dedicated routes;
+ * FAQ has no dedicated page yet, so it stays a homepage anchor — using a
+ * leading "/" so it resolves correctly (navigate home, then scroll) from
+ * any page, not just from "/" itself.
  */
 export const headerNavigation: readonly NavItem[] = [
-  { label: "Coaching", href: "/#coaching" },
-  { label: "About", href: "/#about" },
+  { label: "Coaching", href: "/coaching" },
+  { label: "About", href: "/about" },
   { label: "Insights", href: "/insights" },
   { label: "FAQ", href: "/#faq" },
 ] as const;
