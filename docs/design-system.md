@@ -70,6 +70,8 @@ Reusable primitives live in `src/components/`; homepage-only section components 
 - **`CtaLink`** — the one Button/CTA component, with `"primary"` (gold-filled) and `"secondary"` (outlined) variants. Wraps `next/link`; only ever used for real internal routes or in-page anchors.
 - **`TrustItem`** — a single credential/trust list item (checkmark + text), rendered inside a `<ul>`.
 - **`SiteHeader`** / **`SiteFooter`** — the shared page shell, included once in `src/app/layout.tsx` so every route gets them automatically.
+- **`MobileNav`** — the mobile navigation disclosure used by `SiteHeader`. The only reason it's a Client Component: it reads the current pathname (via `usePathname()`) purely to use as a React `key` on the `<details>` element, so the disclosure remounts (and closes) after navigating to a new page. Without this, the open/closed state would persist across client-side navigations, since `SiteHeader` lives in the persistent root layout.
+- **`FaqAccordion`** — the zero-JS `<details>/<summary>` accordion body (no heading), shared by the homepage FAQ preview and the `/coaching` FAQ section so the markup exists in one place.
 - **`PhotoFrame`** — the one photography component (see below).
 
 ### PhotoFrame
@@ -123,12 +125,34 @@ See [`public/images/README.md`](../public/images/README.md) for the full folder 
 - Each slot is a fixed-aspect-ratio container so a future real photo drops in without any layout change — swap the `null` for a real `HomeImage` (`src`, `alt`, optional `width`/`height`/`objectPosition`/`caption`) and nothing else needs to change.
 - Never substitute a stock photo, a fabricated "client" photo, or a plain gray placeholder box for real photography — the branded `PhotoFrame` fallbacks (see the `PhotoFrame` section above) are always preferable to a fake one.
 - The NFG app preview uses an abstract device-frame composition (CSS shapes, not a screenshot) alongside an honest "Coming Soon" badge — replace with real app screenshots only once the app is real and screenshots are available, and never add a fake app-store badge or download button.
+- `/coaching` and `/about` have their own photography slots (`coachingHeroImage`, `coachingEnvironmentImage`, `aboutPageHeroPortrait`, `aboutPageTrainingAction`, `aboutPageCoachingInteraction`, `aboutPageTechnicalScene`) — separate from the homepage's own slots, since a photo chosen for the homepage teaser isn't necessarily right for the dedicated page's different layout/aspect ratio.
+
+## Dedicated pages (/coaching, /about)
+
+Both dedicated pages (Sprint 1D) follow the same pattern as the homepage: a custom Hero (not wrapped in `Section`, matching `Hero`'s own layout) followed by a sequence of `Section`-based components, each with its own typed content in `src/content/coaching-page.ts` / `src/content/about.ts`. Section components live in `src/components/coaching/` and `src/components/about/`, mirroring `src/components/home/`.
+
+Both pages **reuse existing homepage components directly** rather than duplicating them:
+
+- `/coaching` reuses `HowItWorks` (the same 4-step process — "do not create competing process copy") and `ConsultationCta` (the final CTA) unchanged.
+- `/about` reuses `TrustStrip` (for the credentials/experience section) and `ConsultationCta`-style patterns for its own final CTA.
+- Both pages' FAQ sections build on the shared `FaqAccordion` component rather than re-implementing the accordion markup.
+
+### Format comparison pattern
+
+`/coaching`'s `FormatComparison` component is the reference pattern for presenting tabular data responsively without ever introducing horizontal overflow:
+
+- Below `sm`, it renders **one card per format** (not per row), each a `<dl>` of label/value pairs — nothing to scroll horizontally.
+- From `sm` up, the exact same data renders as a real `<table>` (with proper `scope="col"`/`scope="row"` headers and a `sr-only` `<caption>`), wrapped in `overflow-x-auto` as a safety net even though it shouldn't need to scroll at the sizes this project targets.
+- Comparison values are plain text only — no color-coded cells — so the information doesn't depend on color to be understood.
+- Only confirmed distinctions belong in a comparison row (e.g. "Bay Area requirement"). Never add a row implying a specific session count, check-in frequency, or price — those are support-tier concepts that don't exist yet.
 
 ## Rules against fabricated content
 
 - Never invent prices, testimonials, transformation claims, contact information, social URLs, certification numbers, or service cities. All business facts are read from `src/content/`.
 - The Insights preview only reads from `getPublishedArticles()` — it can never surface a draft article, and it shows an honest "coming soon" message rather than fabricated article cards when the list is empty.
 - The consultation CTA section states plainly that online booking is being finalized — it never uses a submit button or form control that doesn't actually do anything.
+- Training format (online/hybrid/in-person) and support tier (frequency of check-ins, live sessions, communication, customization) are different concepts — support tiers haven't been designed or priced yet and must not be invented on `/coaching`, `/about`, or anywhere else.
+- Never invent exact response times, package inclusions, session counts, certification numbers/renewal dates, or a specific service-radius/city beyond the confirmed general "Bay Area" label.
 
 ## How future pages should reuse this system
 
