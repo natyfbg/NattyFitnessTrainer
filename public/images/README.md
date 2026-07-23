@@ -51,6 +51,19 @@ Each row is a configurable slot in `src/content/media.ts` (`homeMedia`). Until a
 | `nfgScreenshotPrimary`     | `nfg-app/`  | Native mobile screenshot proportions (~9:16) | Real app screenshot once the app has a real UI to show.                                                |
 | `nfgScreenshotSecondary`   | `nfg-app/`  | Native mobile screenshot proportions (~9:16) | Optional second screenshot; only shown at desktop widths.                                              |
 
+### /coaching and /about page photography
+
+These are separate slots from the homepage ones above — a photo set for the homepage teaser doesn't automatically populate the dedicated page, and vice versa.
+
+| Slot (`homeMedia.*`)           | Folder      | Approx. crop                  | Notes                                                              |
+| ------------------------------ | ----------- | ----------------------------- | ------------------------------------------------------------------ |
+| `coachingHeroImage`            | `coaching/` | Vertical 4:5 (3:4 on desktop) | `/coaching` page hero.                                             |
+| `coachingEnvironmentImage`     | `coaching/` | Horizontal 4:3                | Training environment/equipment photo on `/coaching`.               |
+| `aboutPageHeroPortrait`        | `about/`    | Vertical 4:5 (3:4 on desktop) | `/about` page hero portrait.                                       |
+| `aboutPageTrainingAction`      | `about/`    | Vertical 4:5                  | Training-action photo on `/about`.                                 |
+| `aboutPageCoachingInteraction` | `about/`    | Vertical 4:5                  | Candid coaching-interaction photo (requires client permission).    |
+| `aboutPageTechnicalScene`      | `about/`    | Horizontal 4:3                | Technical/online-coaching-context photo (e.g. laptop programming). |
+
 Reminders:
 
 - Explicit permission is required before publishing any client photograph — the `testimonials/` and `about/` (coaching-interaction) folders are the ones most likely to involve a client, so double-check before adding anything there.

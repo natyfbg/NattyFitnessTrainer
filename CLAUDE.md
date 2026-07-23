@@ -57,3 +57,11 @@ In addition to the implementation rules in AGENTS.md above, when working in this
 - Do not enroll consultation leads in marketing emails or any mailing list without separate, explicit consent — this form is for responding to the inquiry only.
 - Preserve `NEXT_PUBLIC_CONSULTATION_FORM_ENABLED` as a genuine kill switch — both the page and the API route must honor it independently.
 - Preserve the local-only nature of the development bypass — it must never be reachable in a production build/deployment, and must never log submitted PII even when active.
+
+## Coaching and About page rules
+
+- Training format (online/hybrid/in-person) and support tier (check-in frequency, live-session count, communication cadence, customization level) are different concepts — support tiers are undesigned and unpriced; never invent one on `/coaching`, `/about`, or elsewhere.
+- Never invent exact response times, package inclusions, session counts, certification numbers/renewal dates, competitions, injuries, awards, dates, or a specific service-radius/city beyond the confirmed general "Bay Area" label.
+- The business inbox address is environment-configured for the consultation flow only — never hardcode it into public page content, and never publish it without explicit instruction.
+- Coaching-format comparisons must only state confirmed distinctions and must remain usable on narrow screens without horizontal table overflow (see the `FormatComparison` pattern in `docs/design-system.md`).
+- Reuse existing homepage components (`HowItWorks`, `ConsultationCta`, `TrustStrip`, `FaqAccordion`) on new pages instead of duplicating their content or markup.

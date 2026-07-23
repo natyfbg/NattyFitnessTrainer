@@ -4,12 +4,12 @@ import { headerNavigation } from "@/content/navigation";
 import { heroContent } from "@/content/home";
 import { CtaLink } from "./cta-link";
 import { Container } from "./container";
+import { MobileNav } from "./mobile-nav";
 
 /**
- * Site header. Mobile navigation uses native <details>/<summary> — no
- * client-side JavaScript is needed for a fully accessible disclosure
- * pattern (keyboard support and expanded/collapsed state come from the
- * browser for free).
+ * Site header. Desktop nav and the logo stay a Server Component; only the
+ * mobile disclosure (src/components/mobile-nav.tsx) needs client-side
+ * awareness of the current route, so it's the one small Client Component.
  */
 export function SiteHeader() {
   return (
@@ -43,46 +43,7 @@ export function SiteHeader() {
           </CtaLink>
         </nav>
 
-        <details className="md:hidden">
-          <summary
-            aria-label="Open menu"
-            className="flex h-11 w-11 cursor-pointer list-none items-center justify-center rounded-card border border-border text-foreground [&::-webkit-details-marker]:hidden"
-          >
-            <svg
-              aria-hidden="true"
-              viewBox="0 0 20 20"
-              className="h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-            >
-              <path d="M3 5h14M3 10h14M3 15h14" />
-            </svg>
-          </summary>
-          <div className="absolute inset-x-0 top-full border-b border-border bg-background px-[var(--content-padding-x)] pb-6">
-            <nav aria-label="Mobile">
-              <ul className="flex flex-col gap-1 pt-2">
-                {headerNavigation.map((item) => (
-                  <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      className="block rounded-card px-3 py-3 text-base font-medium text-foreground hover:bg-background-elevated"
-                    >
-                      {item.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-              <CtaLink
-                href={heroContent.primaryCta.href}
-                className="mt-4 w-full"
-              >
-                {heroContent.primaryCta.label}
-              </CtaLink>
-            </nav>
-          </div>
-        </details>
+        <MobileNav items={headerNavigation} cta={heroContent.primaryCta} />
       </Container>
     </header>
   );
