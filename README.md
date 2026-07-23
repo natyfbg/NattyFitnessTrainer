@@ -72,6 +72,10 @@ Business copy is centralized as typed content under `src/content/`, and articles
 
 The site's visual foundation (colors, typography, spacing, components, accessibility, and responsive rules) is documented in [`docs/design-system.md`](docs/design-system.md) — read it before adding or changing UI.
 
+## Consultation Lead Flow
+
+The `/consultation` form (Cloudflare Turnstile + Resend, no database) is documented in [`docs/consultation-leads.md`](docs/consultation-leads.md) — read it before touching the form, the `/api/consultation` route, or their environment variables.
+
 ## Architecture Principles
 
 - **SEO-first** — pages are structured and optimized for search visibility.
