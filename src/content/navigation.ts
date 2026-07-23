@@ -7,6 +7,7 @@ export interface NavItem {
 export const primaryNavigation: readonly NavItem[] = [
   { label: "Home", href: "/" },
   { label: "Insights", href: "/insights" },
+  { label: "Privacy", href: "/privacy" },
 ] as const;
 
 /**

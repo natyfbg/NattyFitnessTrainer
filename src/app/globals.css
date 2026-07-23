@@ -25,6 +25,9 @@
   --border: rgba(242, 237, 225, 0.14);
   --focus-ring: #f2ede1;
 
+  /* Restrained error/danger state — form validation only, not a brand accent. */
+  --danger: #d9776b;
+
   /* Layout */
   --content-max-width: 80rem;
   --content-max-width-narrow: 42rem;
@@ -50,6 +53,7 @@
   --color-gold-hover: var(--gold-hover);
   --color-border: var(--border);
   --color-focus-ring: var(--focus-ring);
+  --color-danger: var(--danger);
 
   --font-sans: var(--font-body);
   --font-display: var(--font-display);

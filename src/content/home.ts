@@ -23,7 +23,7 @@ export const heroContent: HeroContent = {
   headline: "Disciplined coaching for lasting strength and progress.",
   supportingStatement:
     "Personalized programming and monthly progress assessments, built around your goals — online, hybrid, or in person in the Bay Area.",
-  primaryCta: { label: "Book a Free Consultation", href: "/#consultation" },
+  primaryCta: { label: "Book a Free Consultation", href: "/consultation" },
   secondaryCta: { label: "Explore Coaching", href: "/#coaching" },
 };
 
@@ -52,7 +52,7 @@ export const aboutSectionIntro: SectionIntro = {
 
 export const aboutCta: HomeCta = {
   label: "Book a Free Consultation",
-  href: "/#consultation",
+  href: "/consultation",
 };
 
 export const nfgAppSectionIntro: SectionIntro = {
@@ -76,12 +76,13 @@ export const faqSectionIntro: SectionIntro = {
 export interface ConsultationSectionContent {
   readonly eyebrow: string;
   readonly heading: string;
-  readonly statusNote: string;
+  readonly supportingStatement: string;
+  readonly cta: HomeCta;
 }
 
 export const consultationSection: ConsultationSectionContent = {
   eyebrow: "Get Started",
   heading: "Ready to start your free consultation?",
-  statusNote:
-    "Online booking and contact details are being finalized. This section will let you request your free consultation directly — check back soon.",
+  supportingStatement: "Free, no obligation, and takes just a few minutes.",
+  cta: { label: "Book a Free Consultation", href: "/consultation" },
 };

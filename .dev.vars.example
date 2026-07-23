@@ -1,0 +1,21 @@
+# Copy this file to .dev.vars for local development and fill in real values.
+# .dev.vars is git-ignored and must never be committed.
+# See docs/consultation-leads.md for full setup instructions.
+
+# Public build-time kill switch for the consultation form. Only the exact
+# string "true" enables the public form; anything else (or missing) shows
+# an honest "temporarily unavailable" state.
+NEXT_PUBLIC_CONSULTATION_FORM_ENABLED=false
+
+# Cloudflare Turnstile (public site key + server-only secret key).
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=
+TURNSTILE_SECRET_KEY=
+
+# Resend (server-only).
+RESEND_API_KEY=
+CONSULTATION_TO_EMAIL=
+CONSULTATION_FROM_EMAIL=
+
+# Local-only development bypass — see docs/consultation-leads.md. Never
+# honored when NODE_ENV is "production", regardless of this value.
+CONSULTATION_DEV_BYPASS=false

@@ -1,4 +1,5 @@
 import { Section } from "@/components/section";
+import { CtaLink } from "@/components/cta-link";
 import { consultationSection } from "@/content/home";
 import { Eyebrow } from "@/components/eyebrow";
 
@@ -21,11 +22,11 @@ export function ConsultationCta() {
           {consultationSection.heading}
         </h2>
         <p className="max-w-[55ch] text-lg text-foreground-muted">
-          {consultationSection.statusNote}
+          {consultationSection.supportingStatement}
         </p>
-        <span className="mt-2 inline-flex items-center rounded-pill border border-border px-4 py-2 text-sm font-medium text-foreground-muted">
-          Booking details coming soon
-        </span>
+        <CtaLink href={consultationSection.cta.href} className="mt-2">
+          {consultationSection.cta.label}
+        </CtaLink>
       </div>
     </Section>
   );
