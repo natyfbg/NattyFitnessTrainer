@@ -1,26 +1,98 @@
 @import "tailwindcss";
 
+/*
+ * Natty Fitness Trainer brand tokens.
+ *
+ * This is a single, deliberate dark brand identity (near-black/charcoal,
+ * warm off-white text, restrained gold accent) — not a light/dark toggle.
+ * See docs/design-system.md for the full rationale and usage guidance.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Backgrounds */
+  --bg: #0d0c0a;
+  --bg-elevated: #17140f;
+  --surface-light: #f4efe4;
+
+  /* Text */
+  --text: #f2ede1;
+  --text-muted: #ada393;
+
+  /* Accent */
+  --gold: #c9a24b;
+  --gold-hover: #dab765;
+
+  /* Borders / focus */
+  --border: rgba(242, 237, 225, 0.14);
+  --focus-ring: #f2ede1;
+
+  /* Restrained error/danger state — form validation only, not a brand accent. */
+  --danger: #d9776b;
+
+  /* Layout */
+  --content-max-width: 80rem;
+  --content-max-width-narrow: 42rem;
+  --content-padding-x: clamp(1.25rem, 4vw, 2.5rem);
+  --section-spacing: clamp(3.5rem, 6vw, 7rem);
+
+  /* Radii */
+  --radius-card-value: 0.75rem;
+  --radius-pill-value: 999px;
+
+  /* Shadows — subtle elevation only, never a glow */
+  --shadow-elevated-value:
+    0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px rgba(0, 0, 0, 0.35);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: var(--bg);
+  --color-background-elevated: var(--bg-elevated);
+  --color-surface-light: var(--surface-light);
+  --color-foreground: var(--text);
+  --color-foreground-muted: var(--text-muted);
+  --color-gold: var(--gold);
+  --color-gold-hover: var(--gold-hover);
+  --color-border: var(--border);
+  --color-focus-ring: var(--focus-ring);
+  --color-danger: var(--danger);
+
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+
+  --radius-card: var(--radius-card-value);
+  --radius-pill: var(--radius-pill-value);
+
+  --shadow-elevated: var(--shadow-elevated-value);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-background);
+  color: var(--color-foreground);
+}
+
+::selection {
+  background: var(--color-gold);
+  color: var(--color-background);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
 }

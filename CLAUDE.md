@@ -35,3 +35,25 @@ In addition to the implementation rules in AGENTS.md above, when working in this
 - Do not publish or expose client photos or stories without explicit permission.
 - MDX content and article metadata must remain typed and build-safe for Cloudflare — no runtime filesystem reads, no untyped `any` escape hatches for content data.
 - Preserve the Git-managed content architecture (Version 1: Git + MDX + repository images) unless explicitly approved otherwise.
+
+## Visual system rules
+
+- Preserve the semantic design tokens in `src/app/globals.css` (`--bg`, `--text`, `--gold`, `--border`, etc., mapped via Tailwind's `@theme`) — use the existing token utility classes rather than introducing raw hex values or ad hoc colors in components. See `docs/design-system.md`.
+- Maintain mobile-first responsive behavior — build the small-viewport layout first, then add `sm`/`md`/`lg` refinements, not the reverse.
+- Do not introduce a second, unrelated visual system (new color palette, type scale, spacing scale, or component library) without updating `docs/design-system.md` first.
+- Do not invent content to fill empty UI — an honest "coming soon" or empty state is always preferable to a fabricated placeholder.
+- Never use fake testimonials, client photos, or invented metrics/statistics to make a section feel more populated.
+- Keep Server Components as the default; only introduce a Client Component when a feature genuinely requires browser interactivity that native HTML (e.g. `<details>`/`<summary>`) can't provide.
+- Avoid adding UI/animation/icon-library dependencies — the existing token system, Tailwind utilities, and small inline SVGs are sufficient for this project's needs.
+
+## Consultation lead flow rules
+
+- Consultation form submissions (name, email, phone, city/area, goals) are sensitive personal information — never log or commit submitted lead data, and never add logging that would capture it, even for debugging.
+- Never commit Turnstile or Resend credentials, and never expose `TURNSTILE_SECRET_KEY` or `RESEND_API_KEY` to client code, logs, or error responses.
+- Server-side validation in `src/app/api/consultation/route.ts` is mandatory and authoritative — client-side validation is for UX only; never remove or weaken the server-side re-validation.
+- Turnstile verification cannot be skipped in production under any circumstance. The local development bypass (`CONSULTATION_DEV_BYPASS`) must remain gated on `NODE_ENV !== "production"`, checked in code, not just by convention.
+- Never make the API respond as if an email was delivered when it wasn't — an unconfigured or failing email provider must return an honest error, never a false success.
+- Do not add form fields that collect medical records, diagnoses, medications, or other unnecessary sensitive health data. A separate, later flow is where a detailed assessment belongs.
+- Do not enroll consultation leads in marketing emails or any mailing list without separate, explicit consent — this form is for responding to the inquiry only.
+- Preserve `NEXT_PUBLIC_CONSULTATION_FORM_ENABLED` as a genuine kill switch — both the page and the API route must honor it independently.
+- Preserve the local-only nature of the development bypass — it must never be reachable in a production build/deployment, and must never log submitted PII even when active.

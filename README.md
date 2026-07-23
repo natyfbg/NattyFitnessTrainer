@@ -68,6 +68,14 @@ See [`docs/deployment.md`](docs/deployment.md) for the full deployment guide (br
 
 Business copy is centralized as typed content under `src/content/`, and articles live under `/insights` as Git-managed MDX files. See [`docs/content-management.md`](docs/content-management.md) for how to update trainer/business information, add photography, and create or publish an Insights article.
 
+## Design System
+
+The site's visual foundation (colors, typography, spacing, components, accessibility, and responsive rules) is documented in [`docs/design-system.md`](docs/design-system.md) — read it before adding or changing UI.
+
+## Consultation Lead Flow
+
+The `/consultation` form (Cloudflare Turnstile + Resend, no database) is documented in [`docs/consultation-leads.md`](docs/consultation-leads.md) — read it before touching the form, the `/api/consultation` route, or their environment variables.
+
 ## Architecture Principles
 
 - **SEO-first** — pages are structured and optimized for search visibility.
