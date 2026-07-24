@@ -6,19 +6,18 @@ export interface NavItem {
 /** Only routes that actually exist — never a placeholder link. */
 export const primaryNavigation: readonly NavItem[] = [
   { label: "Home", href: "/" },
+  { label: "Coaching", href: "/coaching" },
+  { label: "About", href: "/about" },
   { label: "Insights", href: "/insights" },
+  { label: "FAQ", href: "/faq" },
+  { label: "Consultation", href: "/consultation" },
   { label: "Privacy", href: "/privacy" },
 ] as const;
 
-/**
- * Header navigation. Coaching, About, and Insights are dedicated routes;
- * FAQ has no dedicated page yet, so it stays a homepage anchor — using a
- * leading "/" so it resolves correctly (navigate home, then scroll) from
- * any page, not just from "/" itself.
- */
+/** Header navigation. All entries are dedicated routes. */
 export const headerNavigation: readonly NavItem[] = [
   { label: "Coaching", href: "/coaching" },
   { label: "About", href: "/about" },
   { label: "Insights", href: "/insights" },
-  { label: "FAQ", href: "/#faq" },
+  { label: "FAQ", href: "/faq" },
 ] as const;

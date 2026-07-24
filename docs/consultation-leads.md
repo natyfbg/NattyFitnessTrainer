@@ -116,6 +116,10 @@ Set `NEXT_PUBLIC_CONSULTATION_FORM_ENABLED` to anything other than `"true"` (or 
 
 This sprint stores nothing. A submission either results in an email being sent, or the request fails and nothing is retained anywhere in this application. There is no lead list, no submission history, and no way to look up a past inquiry from within the app.
 
+## Manual lead workflow
+
+There's no CRM or database in this sprint, but leads still need to be triaged and tracked once they land in the business inbox. See [`docs/lead-management.md`](lead-management.md) for the manual Gmail-labels-and-spreadsheet workflow, recommended labels/columns, and privacy guidance for handling delivered leads.
+
 ## Future roadmap
 
 - **Lead storage**: a database or storage layer to keep a record of inquiries (currently, if the email isn't delivered, the inquiry is lost).

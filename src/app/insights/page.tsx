@@ -3,14 +3,30 @@ import Link from "next/link";
 import { getPublishedArticles } from "@/content/insights/registry";
 import { getCategoryLabel } from "@/content/insights/categories";
 import { formatDate } from "@/lib/format-date";
-import { getCanonicalUrl } from "@/content/site";
+import { SITE_NAME, SITE_LOCALE, getCanonicalUrl } from "@/content/site";
+
+const title = "Insights";
+const description =
+  "Fitness research, guides, and practical advice from Natty Fitness Trainer.";
 
 export const metadata: Metadata = {
-  title: "Insights | Natty Fitness Trainer",
-  description:
-    "Fitness research, guides, and practical advice from Natty Fitness Trainer.",
+  title,
+  description,
   alternates: {
     canonical: getCanonicalUrl("/insights"),
+  },
+  openGraph: {
+    title: `${title} | ${SITE_NAME}`,
+    description,
+    url: getCanonicalUrl("/insights"),
+    siteName: SITE_NAME,
+    locale: SITE_LOCALE,
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: `${title} | ${SITE_NAME}`,
+    description,
   },
 };
 
@@ -63,6 +79,14 @@ export default function InsightsPage() {
           ))}
         </ul>
       )}
+
+      <p className="mt-10 text-sm text-zinc-500 dark:text-zinc-400">
+        Looking for personalized guidance?{" "}
+        <Link href="/coaching" className="underline hover:no-underline">
+          Explore coaching
+        </Link>
+        .
+      </p>
     </main>
   );
 }
