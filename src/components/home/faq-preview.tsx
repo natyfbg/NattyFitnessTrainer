@@ -1,7 +1,8 @@
 import { Section } from "@/components/section";
 import { SectionHeading } from "@/components/section-heading";
 import { FaqAccordion } from "@/components/faq-accordion";
-import { faqItems } from "@/content/faq";
+import { CtaLink } from "@/components/cta-link";
+import { getHomeFaqItems } from "@/content/faq";
 import { faqSectionIntro } from "@/content/home";
 
 export function FaqPreview() {
@@ -12,7 +13,10 @@ export function FaqPreview() {
         eyebrow={faqSectionIntro.eyebrow}
         heading={faqSectionIntro.heading}
       />
-      <FaqAccordion items={faqItems} />
+      <FaqAccordion items={getHomeFaqItems()} />
+      <CtaLink href="/faq" variant="secondary" className="mt-8">
+        View All FAQs
+      </CtaLink>
     </Section>
   );
 }

@@ -1,7 +1,8 @@
 import { Section } from "@/components/section";
 import { SectionHeading } from "@/components/section-heading";
 import { FaqAccordion } from "@/components/faq-accordion";
-import { faqItems } from "@/content/faq";
+import { CtaLink } from "@/components/cta-link";
+import { getCoachingFaqItems } from "@/content/faq";
 import { coachingFaqIntro } from "@/content/coaching-page";
 
 export function CoachingFaq() {
@@ -12,7 +13,10 @@ export function CoachingFaq() {
         eyebrow={coachingFaqIntro.eyebrow}
         heading={coachingFaqIntro.heading}
       />
-      <FaqAccordion items={faqItems} />
+      <FaqAccordion items={getCoachingFaqItems()} />
+      <CtaLink href="/faq" variant="secondary" className="mt-8">
+        View All FAQs
+      </CtaLink>
     </Section>
   );
 }

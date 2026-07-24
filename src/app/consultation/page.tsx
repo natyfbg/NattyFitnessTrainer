@@ -7,17 +7,32 @@ import {
   consultationPageContent,
   consultationUnavailableMessage,
 } from "@/content/consultation";
-import { getCanonicalUrl } from "@/content/site";
+import { SITE_NAME, SITE_LOCALE, getCanonicalUrl } from "@/content/site";
 import {
   isConsultationDevBypassActive,
   isConsultationFormEnabled,
 } from "@/lib/consultation/config";
 
+const title = "Free Consultation";
+
 export const metadata: Metadata = {
-  title: "Free Consultation",
+  title,
   description: consultationPageContent.intro,
   alternates: {
     canonical: getCanonicalUrl("/consultation"),
+  },
+  openGraph: {
+    title: `${title} | ${SITE_NAME}`,
+    description: consultationPageContent.intro,
+    url: getCanonicalUrl("/consultation"),
+    siteName: SITE_NAME,
+    locale: SITE_LOCALE,
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: `${title} | ${SITE_NAME}`,
+    description: consultationPageContent.intro,
   },
 };
 
