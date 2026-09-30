@@ -47,7 +47,7 @@ export function Hero() {
               fallbackLabel={`${trainer.name} · ${trainer.serviceAreaLabel}`}
               priority
               className="shadow-elevated"
-              sizes="(min-width: 1024px) 480px, (min-width: 640px) 60vw, 100vw"
+              sizes="(min-width: 1024px) 568px, (min-width: 640px) 60vw, 100vw"
             />
             <div className="absolute right-0 bottom-0 hidden w-2/5 lg:block">
               <PhotoFrame

@@ -8,7 +8,12 @@ import { ProgrammingConsiderations } from "@/components/coaching/programming-con
 import { CoachingExpectations } from "@/components/coaching/coaching-expectations";
 import { CoachingFaq } from "@/components/coaching/coaching-faq";
 import { ConsultationCta } from "@/components/home/consultation-cta";
-import { SITE_NAME, SITE_LOCALE, getCanonicalUrl } from "@/content/site";
+import {
+  DEFAULT_SOCIAL_IMAGE,
+  SITE_NAME,
+  SITE_LOCALE,
+  getCanonicalUrl,
+} from "@/content/site";
 
 const title = "Coaching";
 const description =
@@ -27,9 +32,10 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     locale: SITE_LOCALE,
     type: "website",
+    images: [DEFAULT_SOCIAL_IMAGE],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: `${title} | ${SITE_NAME}`,
     description,
   },
