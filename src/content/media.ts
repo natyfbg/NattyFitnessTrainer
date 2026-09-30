@@ -7,8 +7,22 @@
  * slot is non-null and otherwise shows a branded fallback.
  */
 
+import type { StaticImageData } from "next/image";
+import heroPortraitMedball from "../../public/images/home/hero-portrait-medball-1600x2000.webp";
+import lifestyleStairClimber from "../../public/images/home/lifestyle-stair-climber-2560x1440.webp";
+import aboutTeaserCurlFocus from "../../public/images/about/about-teaser-curl-focus-1600x2000.webp";
+import aboutHeroCurlSmile from "../../public/images/about/about-hero-curl-smile-1600x2000.webp";
+import coachingHeroPullup from "../../public/images/coaching/coaching-hero-pullup-1600x2000.webp";
+
 export interface HomeImage {
-  readonly src: string;
+  /**
+   * Prefer a static import of the file (e.g. `import x from
+   * "../../public/images/home/x.webp"`): Next.js content-hashes it under
+   * /_next/static/media, which lets the Cloudflare image optimizer serve it
+   * with a long-lived immutable cache header and a blur placeholder. A plain
+   * "/images/..." string still works but is re-optimized on every request.
+   */
+  readonly src: StaticImageData | string;
   readonly alt: string;
   readonly width?: number;
   readonly height?: number;
@@ -55,26 +69,20 @@ export interface HomeMedia {
 
 export const homeMedia: HomeMedia = {
   heroPortrait: {
-    src: "/images/home/hero-portrait-medball-1600x2000.webp",
+    src: heroPortraitMedball,
     alt: "Nathnael Gebre smiling in a gym, holding a black medicine ball in front of him under warm hanging lights.",
-    width: 1600,
-    height: 2000,
   },
   heroDetail: null,
   coachingAction: null,
   aboutTrainerPortrait: {
-    src: "/images/about/about-teaser-curl-focus-1600x2000.webp",
+    src: aboutTeaserCurlFocus,
     alt: "Nathnael Gebre performing a dumbbell biceps curl in front of a black-and-white poster wall.",
-    width: 1600,
-    height: 2000,
   },
   aboutCoachingInteraction: null,
   aboutTrainingAction: null,
   lifestyleBand: {
-    src: "/images/home/lifestyle-stair-climber-2560x1440.webp",
+    src: lifestyleStairClimber,
     alt: "Nathnael Gebre standing beside a row of stair-climber machines next to floor-to-ceiling gym windows.",
-    width: 2560,
-    height: 1440,
     // The band renders at 2:1 (mobile) and 21:9 (sm+), which trims the
     // top and bottom of this 16:9 photo — anchor near the top so the
     // subject's head is never cropped.
@@ -83,17 +91,13 @@ export const homeMedia: HomeMedia = {
   nfgScreenshotPrimary: null,
   nfgScreenshotSecondary: null,
   coachingHeroImage: {
-    src: "/images/coaching/coaching-hero-pullup-1600x2000.webp",
+    src: coachingHeroPullup,
     alt: "Nathnael Gebre gripping a pull-up bar in a bright, modern gym.",
-    width: 1600,
-    height: 2000,
   },
   coachingEnvironmentImage: null,
   aboutPageHeroPortrait: {
-    src: "/images/about/about-hero-curl-smile-1600x2000.webp",
+    src: aboutHeroCurlSmile,
     alt: "Nathnael Gebre smiling at the camera during a dumbbell curl in front of a poster-covered gym wall.",
-    width: 1600,
-    height: 2000,
   },
   aboutPageTrainingAction: null,
   aboutPageCoachingInteraction: null,
