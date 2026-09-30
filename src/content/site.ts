@@ -39,3 +39,16 @@ export const primaryCallToAction: CallToAction = {
   label: "Book a Free Consultation",
   href: null,
 };
+
+/**
+ * Default social-sharing (Open Graph / Twitter) image. Next.js replaces a
+ * parent's `openGraph` object entirely when a page defines its own, so every
+ * page that sets `openGraph` must include this in `openGraph.images`
+ * explicitly (Twitter falls back to the Open Graph image automatically).
+ */
+export const DEFAULT_SOCIAL_IMAGE = {
+  url: "/images/brand/social-share-1200x630.jpg",
+  width: 1200,
+  height: 630,
+  alt: "Nathnael Gebre, NFPT Certified Personal Trainer, smiling in a gym.",
+} as const;

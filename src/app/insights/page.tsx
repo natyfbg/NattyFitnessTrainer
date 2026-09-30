@@ -3,7 +3,12 @@ import Link from "next/link";
 import { getPublishedArticles } from "@/content/insights/registry";
 import { getCategoryLabel } from "@/content/insights/categories";
 import { formatDate } from "@/lib/format-date";
-import { SITE_NAME, SITE_LOCALE, getCanonicalUrl } from "@/content/site";
+import {
+  DEFAULT_SOCIAL_IMAGE,
+  SITE_NAME,
+  SITE_LOCALE,
+  getCanonicalUrl,
+} from "@/content/site";
 
 const title = "Insights";
 const description =
@@ -22,9 +27,10 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     locale: SITE_LOCALE,
     type: "website",
+    images: [DEFAULT_SOCIAL_IMAGE],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: `${title} | ${SITE_NAME}`,
     description,
   },

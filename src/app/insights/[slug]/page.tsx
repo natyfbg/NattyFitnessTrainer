@@ -8,7 +8,12 @@ import {
 import { getCategoryLabel } from "@/content/insights/categories";
 import { formatDate } from "@/lib/format-date";
 import { ArticleJsonLd } from "@/components/article-json-ld";
-import { SITE_NAME, SITE_LOCALE, getCanonicalUrl } from "@/content/site";
+import {
+  DEFAULT_SOCIAL_IMAGE,
+  SITE_NAME,
+  SITE_LOCALE,
+  getCanonicalUrl,
+} from "@/content/site";
 
 interface ArticlePageParams {
   readonly slug: string;
@@ -58,9 +63,10 @@ export async function generateMetadata({
       publishedTime: frontmatter.publishedAt,
       modifiedTime: frontmatter.updatedAt ?? frontmatter.publishedAt,
       authors: [frontmatter.author.name],
+      images: [DEFAULT_SOCIAL_IMAGE],
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title,
       description: frontmatter.description,
     },
