@@ -43,6 +43,9 @@ export function PhotoFrame({
       fill
       sizes={sizes}
       priority={priority}
+      // Static imports carry a tiny build-time blur preview, shown while the
+      // full image loads instead of an empty frame.
+      placeholder={typeof image.src === "string" ? "empty" : "blur"}
       style={{
         objectFit: "cover",
         objectPosition: image.objectPosition ?? "center",
