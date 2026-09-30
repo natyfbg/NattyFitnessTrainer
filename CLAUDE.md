@@ -29,7 +29,8 @@ In addition to the implementation rules in AGENTS.md above, when working in this
 
 - Centralized content files under `src/content/` are the source of truth for business copy — do not hardcode business copy directly in components/pages instead of reading it from there.
 - Never invent contact information, testimonials, credentials, prices, service locations, reviewer identities, citations, or medical claims. Use `null`/`undefined` for unknown values instead of a placeholder.
-- Draft articles (`draft: true`) must not be exposed in production — verify this through the existing registry/route logic rather than adding a separate, divergent check.
+- Nutrition guidance must stay within general fitness-coaching scope (sustainable eating habits, calorie/macro awareness, protein intake, meal structure) — never present Nathnael as a registered dietitian unless separately verified, never describe the service as medical nutrition therapy, and never claim to diagnose or treat a health condition. Medical or condition-specific nutrition concerns must be framed as a referral to a qualified healthcare professional.
+- Draft articles (`draft: true`) must not be exposed in production — verify this through the existing registry/route logic (`getPublishedArticles()`/`getPublishedArticleSlugs()`) rather than adding a separate, divergent check. This includes the sitemap and any other route-listing mechanism, which must reuse the same draft-exclusion logic rather than re-implementing it.
 - Article references must correspond to sources actually used to write that article.
 - Do not represent opinion as established evidence; keep research-supported information, professional interpretation, and personal opinion clearly distinguishable.
 - Do not publish or expose client photos or stories without explicit permission.
@@ -65,3 +66,7 @@ In addition to the implementation rules in AGENTS.md above, when working in this
 - The business inbox address is environment-configured for the consultation flow only — never hardcode it into public page content, and never publish it without explicit instruction.
 - Coaching-format comparisons must only state confirmed distinctions and must remain usable on narrow screens without horizontal table overflow (see the `FormatComparison` pattern in `docs/design-system.md`).
 - Reuse existing homepage components (`HowItWorks`, `ConsultationCta`, `TrustStrip`, `FaqAccordion`) on new pages instead of duplicating their content or markup.
+
+## Lead management rules
+
+- Lead-tracking spreadsheets (see `docs/lead-management.md`) are an operational tracker for follow-up, not a medical-record system — never recommend storing diagnoses, medications, or other sensitive health information there, and keep free-text copying from consultation submissions minimal.

@@ -137,6 +137,10 @@ Both pages **reuse existing homepage components directly** rather than duplicati
 - `/about` reuses `TrustStrip` (for the credentials/experience section) and `ConsultationCta`-style patterns for its own final CTA.
 - Both pages' FAQ sections build on the shared `FaqAccordion` component rather than re-implementing the accordion markup.
 
+### FAQ architecture (/faq)
+
+`src/content/faq.ts` is the single source of truth for every FAQ item on the site — the homepage preview, `/coaching`'s FAQ section, and the dedicated `/faq` page all read from it rather than hardcoding their own questions. Each `FaqItem` carries a `category` (for grouping on `/faq`) and optional `featuredOnHome`/`featuredOnCoaching` flags (for deriving the smaller page-specific subsets via `getHomeFaqItems()`/`getCoachingFaqItems()`). Add a new question by adding one entry to `faqItems` and flagging where it should surface — never duplicate a question's text into a page-specific file.
+
 ### Format comparison pattern
 
 `/coaching`'s `FormatComparison` component is the reference pattern for presenting tabular data responsively without ever introducing horizontal overflow:

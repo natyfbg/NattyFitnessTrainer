@@ -18,7 +18,7 @@ export function AboutSection() {
             aspectClassName="aspect-4/5"
             fallbackLabel={trainer.name}
             className="shadow-elevated"
-            sizes="(min-width: 1024px) 480px, 100vw"
+            sizes="(min-width: 1024px) 568px, 384px"
           />
         </div>
 

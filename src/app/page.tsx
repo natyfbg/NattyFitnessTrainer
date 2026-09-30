@@ -10,6 +10,7 @@ import { InsightsPreview } from "@/components/home/insights-preview";
 import { FaqPreview } from "@/components/home/faq-preview";
 import { ConsultationCta } from "@/components/home/consultation-cta";
 import {
+  DEFAULT_SOCIAL_IMAGE,
   SITE_NAME,
   SITE_TAGLINE,
   SITE_LOCALE,
@@ -29,9 +30,10 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     locale: SITE_LOCALE,
     type: "website",
+    images: [DEFAULT_SOCIAL_IMAGE],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: SITE_NAME,
     description: SITE_TAGLINE,
   },

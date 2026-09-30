@@ -45,7 +45,7 @@ export function AboutHero() {
             fallbackLabel={`${trainer.name} · ${trainer.serviceAreaLabel}`}
             priority
             className="mx-auto w-full max-w-md shadow-elevated lg:max-w-none"
-            sizes="(min-width: 1024px) 480px, (min-width: 640px) 60vw, 100vw"
+            sizes="(min-width: 1024px) 568px, (min-width: 640px) 60vw, 100vw"
           />
         </div>
       </Container>

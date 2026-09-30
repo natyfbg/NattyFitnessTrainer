@@ -1,15 +1,37 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/container";
-import { getCanonicalUrl } from "@/content/site";
+import {
+  DEFAULT_SOCIAL_IMAGE,
+  SITE_NAME,
+  SITE_LOCALE,
+  getCanonicalUrl,
+} from "@/content/site";
 import { privacyLastUpdated } from "@/content/privacy";
 
+const title = "Privacy Notice";
+const description =
+  "How Natty Fitness Trainer handles information submitted through the free consultation form.";
+
 export const metadata: Metadata = {
-  title: "Privacy Notice",
-  description:
-    "How Natty Fitness Trainer handles information submitted through the free consultation form.",
+  title,
+  description,
   alternates: {
     canonical: getCanonicalUrl("/privacy"),
+  },
+  openGraph: {
+    title: `${title} | ${SITE_NAME}`,
+    description,
+    url: getCanonicalUrl("/privacy"),
+    siteName: SITE_NAME,
+    locale: SITE_LOCALE,
+    type: "website",
+    images: [DEFAULT_SOCIAL_IMAGE],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${title} | ${SITE_NAME}`,
+    description,
   },
 };
 

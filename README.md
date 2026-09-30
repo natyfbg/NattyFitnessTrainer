@@ -74,7 +74,11 @@ The site's visual foundation (colors, typography, spacing, components, accessibi
 
 ## Consultation Lead Flow
 
-The `/consultation` form (Cloudflare Turnstile + Resend, no database) is documented in [`docs/consultation-leads.md`](docs/consultation-leads.md) — read it before touching the form, the `/api/consultation` route, or their environment variables.
+The `/consultation` form (Cloudflare Turnstile + Resend, no database) is documented in [`docs/consultation-leads.md`](docs/consultation-leads.md) — read it before touching the form, the `/api/consultation` route, or their environment variables. The manual workflow for triaging delivered leads (Gmail labels, spreadsheet tracking, privacy guidance) is documented separately in [`docs/lead-management.md`](docs/lead-management.md).
+
+## Launch Checklist
+
+[`docs/launch-checklist.md`](docs/launch-checklist.md) is the manual pre-production review checklist (code, Cloudflare configuration, consultation flow, SEO, responsive/accessibility, content).
 
 ## Architecture Principles
 

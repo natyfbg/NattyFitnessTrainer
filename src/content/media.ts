@@ -54,18 +54,47 @@ export interface HomeMedia {
 }
 
 export const homeMedia: HomeMedia = {
-  heroPortrait: null,
+  heroPortrait: {
+    src: "/images/home/hero-portrait-medball-1600x2000.webp",
+    alt: "Nathnael Gebre smiling in a gym, holding a black medicine ball in front of him under warm hanging lights.",
+    width: 1600,
+    height: 2000,
+  },
   heroDetail: null,
   coachingAction: null,
-  aboutTrainerPortrait: null,
+  aboutTrainerPortrait: {
+    src: "/images/about/about-teaser-curl-focus-1600x2000.webp",
+    alt: "Nathnael Gebre performing a dumbbell biceps curl in front of a black-and-white poster wall.",
+    width: 1600,
+    height: 2000,
+  },
   aboutCoachingInteraction: null,
   aboutTrainingAction: null,
-  lifestyleBand: null,
+  lifestyleBand: {
+    src: "/images/home/lifestyle-stair-climber-2560x1440.webp",
+    alt: "Nathnael Gebre standing beside a row of stair-climber machines next to floor-to-ceiling gym windows.",
+    width: 2560,
+    height: 1440,
+    // The band renders at 2:1 (mobile) and 21:9 (sm+), which trims the
+    // top and bottom of this 16:9 photo — anchor near the top so the
+    // subject's head is never cropped.
+    objectPosition: "center 15%",
+  },
   nfgScreenshotPrimary: null,
   nfgScreenshotSecondary: null,
-  coachingHeroImage: null,
+  coachingHeroImage: {
+    src: "/images/coaching/coaching-hero-pullup-1600x2000.webp",
+    alt: "Nathnael Gebre gripping a pull-up bar in a bright, modern gym.",
+    width: 1600,
+    height: 2000,
+  },
   coachingEnvironmentImage: null,
-  aboutPageHeroPortrait: null,
+  aboutPageHeroPortrait: {
+    src: "/images/about/about-hero-curl-smile-1600x2000.webp",
+    alt: "Nathnael Gebre smiling at the camera during a dumbbell curl in front of a poster-covered gym wall.",
+    width: 1600,
+    height: 2000,
+  },
   aboutPageTrainingAction: null,
   aboutPageCoachingInteraction: null,
   aboutPageTechnicalScene: null,

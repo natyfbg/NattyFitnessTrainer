@@ -23,9 +23,24 @@ Repository-managed photography and graphics for the public site (Version 1 of th
 - Every meaningful image needs accurate, specific alternative text describing what the image shows. Purely decorative images should use an empty `alt=""`, not a description.
 - Do not add placeholder, fake, or third-party stock photos to this repository — an empty folder with real content pending is preferable to a fake stand-in image.
 
+## Current photography (Sprint 1F)
+
+Web-ready derivatives exported from the edited originals (archived outside this repo). Metadata is stripped; all files are sRGB.
+
+| File                                           | Slot (`homeMedia.*`)                           | Source photo                                         |
+| ---------------------------------------------- | ---------------------------------------------- | ---------------------------------------------------- |
+| `home/hero-portrait-medball-1600x2000.webp`    | `heroPortrait`                                 | Medicine-ball portrait (native 4:5)                  |
+| `home/lifestyle-stair-climber-2560x1440.webp`  | `lifestyleBand`                                | Stair climber (16:9, `objectPosition: "center 15%"`) |
+| `about/about-teaser-curl-focus-1600x2000.webp` | `aboutTrainerPortrait`                         | Dumbbell curl, focused (4:5 crop of 3:2)             |
+| `about/about-hero-curl-smile-1600x2000.webp`   | `aboutPageHeroPortrait`                        | Dumbbell curl, smiling (4:5 crop of 3:2)             |
+| `coaching/coaching-hero-pullup-1600x2000.webp` | `coachingHeroImage`                            | Pull-up (4:5 crop of 3:2)                            |
+| `brand/social-share-1200x630.jpg`              | `DEFAULT_SOCIAL_IMAGE` (`src/content/site.ts`) | Medicine-ball portrait (wide crop)                   |
+
+Still open: `heroDetail`, `coachingAction` (not yet rendered by any component), a real client-coaching interaction photo (requires client permission), `coachingEnvironmentImage`, the remaining `/about` slots, NFG app screenshots, and brand assets.
+
 ## Planned professional photo shoot
 
-The following shots are planned but not yet captured; do not fabricate placeholders for them:
+The following shots were planned for the photo shoot; any not yet captured must not be faked with placeholders:
 
 - Direct trainer portrait (neutral background)
 - Candid client interaction (with explicit client permission only)
@@ -39,17 +54,17 @@ The following shots are planned but not yet captured; do not fabricate placehold
 
 Each row is a configurable slot in `src/content/media.ts` (`homeMedia`). Until a slot has a real image, the homepage shows a tasteful branded fallback via `PhotoFrame` (`src/components/photo-frame.tsx`) — see `docs/design-system.md` for how that works. To add a photo, drop the optimized file in the matching folder below, then set that slot's `src`/`alt` (and optional `width`/`height`/`objectPosition`) in `media.ts`.
 
-| Slot (`homeMedia.*`)       | Folder      | Approx. crop                                 | Notes                                                                                                  |
-| -------------------------- | ----------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `heroPortrait`             | `home/`     | Vertical 4:5                                 | Primary hero image — the trainer, in frame, not a stock photo.                                         |
-| `heroDetail`               | `home/`     | Vertical or square detail                    | Optional smaller accent shot (e.g. a training/equipment detail); only shown at desktop widths.         |
-| `coachingAction`           | `coaching/` | Horizontal 3:2 (wide)                        | One wide supporting image below the coaching-style cards.                                              |
-| `aboutTrainerPortrait`     | `about/`    | Vertical 4:5                                 | First-priority About section image.                                                                    |
-| `aboutCoachingInteraction` | `about/`    | Vertical 4:5                                 | Used only if a trainer portrait isn't set (requires client permission).                                |
-| `aboutTrainingAction`      | `about/`    | Vertical 4:5                                 | Used only if neither of the above is set.                                                              |
-| `lifestyleBand`            | `home/`     | Wide 16:9 or 2:1                             | Full-width band between "How It Works" and "About" — training environment or Bay Area outdoor fitness. |
-| `nfgScreenshotPrimary`     | `nfg-app/`  | Native mobile screenshot proportions (~9:16) | Real app screenshot once the app has a real UI to show.                                                |
-| `nfgScreenshotSecondary`   | `nfg-app/`  | Native mobile screenshot proportions (~9:16) | Optional second screenshot; only shown at desktop widths.                                              |
+| Slot (`homeMedia.*`)       | Folder      | Approx. crop                                                            | Notes                                                                                                  |
+| -------------------------- | ----------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `heroPortrait`             | `home/`     | Vertical 4:5                                                            | Primary hero image — the trainer, in frame, not a stock photo.                                         |
+| `heroDetail`               | `home/`     | Vertical or square detail                                               | Optional smaller accent shot (e.g. a training/equipment detail); only shown at desktop widths.         |
+| `coachingAction`           | `coaching/` | Horizontal 3:2 (wide)                                                   | One wide supporting image below the coaching-style cards.                                              |
+| `aboutTrainerPortrait`     | `about/`    | Vertical 4:5                                                            | First-priority About section image.                                                                    |
+| `aboutCoachingInteraction` | `about/`    | Vertical 4:5                                                            | Used only if a trainer portrait isn't set (requires client permission).                                |
+| `aboutTrainingAction`      | `about/`    | Vertical 4:5                                                            | Used only if neither of the above is set.                                                              |
+| `lifestyleBand`            | `home/`     | Renders 2:1 (mobile) / 21:9 (sm+); 16:9 source OK with `objectPosition` | Full-width band between "How It Works" and "About" — training environment or Bay Area outdoor fitness. |
+| `nfgScreenshotPrimary`     | `nfg-app/`  | Native mobile screenshot proportions (~9:16)                            | Real app screenshot once the app has a real UI to show.                                                |
+| `nfgScreenshotSecondary`   | `nfg-app/`  | Native mobile screenshot proportions (~9:16)                            | Optional second screenshot; only shown at desktop widths.                                              |
 
 ### /coaching and /about page photography
 

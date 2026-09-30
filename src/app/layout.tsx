@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
-import { SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/content/site";
+import {
+  DEFAULT_SOCIAL_IMAGE,
+  SITE_NAME,
+  SITE_TAGLINE,
+  SITE_URL,
+} from "@/content/site";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import "./globals.css";
@@ -27,6 +32,10 @@ export const metadata: Metadata = {
     template: `%s | ${SITE_NAME}`,
   },
   description: SITE_TAGLINE,
+  // Fallback for routes that don't define their own openGraph object.
+  openGraph: {
+    images: [DEFAULT_SOCIAL_IMAGE],
+  },
 };
 
 export default function RootLayout({

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   getArticleBySlug,
@@ -7,7 +8,12 @@ import {
 import { getCategoryLabel } from "@/content/insights/categories";
 import { formatDate } from "@/lib/format-date";
 import { ArticleJsonLd } from "@/components/article-json-ld";
-import { getCanonicalUrl } from "@/content/site";
+import {
+  DEFAULT_SOCIAL_IMAGE,
+  SITE_NAME,
+  SITE_LOCALE,
+  getCanonicalUrl,
+} from "@/content/site";
 
 interface ArticlePageParams {
   readonly slug: string;
@@ -37,11 +43,32 @@ export async function generateMetadata({
     return {};
   }
 
+  const { frontmatter } = entry;
+  const title = `${frontmatter.title} | Natty Fitness Trainer Insights`;
+  const url = getCanonicalUrl(`/insights/${slug}`);
+
   return {
-    title: `${entry.frontmatter.title} | Natty Fitness Trainer Insights`,
-    description: entry.frontmatter.description,
+    title,
+    description: frontmatter.description,
     alternates: {
-      canonical: getCanonicalUrl(`/insights/${slug}`),
+      canonical: url,
+    },
+    openGraph: {
+      title,
+      description: frontmatter.description,
+      url,
+      siteName: SITE_NAME,
+      locale: SITE_LOCALE,
+      type: "article",
+      publishedTime: frontmatter.publishedAt,
+      modifiedTime: frontmatter.updatedAt ?? frontmatter.publishedAt,
+      authors: [frontmatter.author.name],
+      images: [DEFAULT_SOCIAL_IMAGE],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: frontmatter.description,
     },
   };
 }
@@ -158,6 +185,14 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             </ol>
           </section>
         ) : null}
+
+        <p className="mt-8 text-sm text-zinc-500 dark:text-zinc-400">
+          Looking to put this into practice?{" "}
+          <Link href="/coaching" className="underline hover:no-underline">
+            Explore coaching
+          </Link>
+          .
+        </p>
       </article>
     </main>
   );
