@@ -13,6 +13,7 @@ import lifestyleStairClimber from "../../public/images/home/lifestyle-stair-clim
 import aboutTeaserCurlFocus from "../../public/images/about/about-teaser-curl-focus-1600x2000.webp";
 import aboutHeroCurlSmile from "../../public/images/about/about-hero-curl-smile-1600x2000.webp";
 import coachingHeroPullup from "../../public/images/coaching/coaching-hero-pullup-1600x2000.webp";
+import aboutTrainingLegExtension from "../../public/images/about/about-training-leg-extension-1600x2000.webp";
 
 export interface HomeImage {
   /**
@@ -99,7 +100,10 @@ export const homeMedia: HomeMedia = {
     src: aboutHeroCurlSmile,
     alt: "Nathnael Gebre smiling at the camera during a dumbbell curl in front of a poster-covered gym wall.",
   },
-  aboutPageTrainingAction: null,
+  aboutPageTrainingAction: {
+    src: aboutTrainingLegExtension,
+    alt: "Nathnael Gebre seated on a leg extension machine in a bright gym with floor-to-ceiling windows.",
+  },
   aboutPageCoachingInteraction: null,
   aboutPageTechnicalScene: null,
 };

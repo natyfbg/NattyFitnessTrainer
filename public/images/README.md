@@ -27,16 +27,17 @@ Repository-managed photography and graphics for the public site (Version 1 of th
 
 Web-ready derivatives exported from the edited originals (archived outside this repo). Metadata is stripped; all files are sRGB.
 
-| File                                           | Slot (`homeMedia.*`)                           | Source photo                                         |
-| ---------------------------------------------- | ---------------------------------------------- | ---------------------------------------------------- |
-| `home/hero-portrait-medball-1600x2000.webp`    | `heroPortrait`                                 | Medicine-ball portrait (native 4:5)                  |
-| `home/lifestyle-stair-climber-2560x1440.webp`  | `lifestyleBand`                                | Stair climber (16:9, `objectPosition: "center 15%"`) |
-| `about/about-teaser-curl-focus-1600x2000.webp` | `aboutTrainerPortrait`                         | Dumbbell curl, focused (4:5 crop of 3:2)             |
-| `about/about-hero-curl-smile-1600x2000.webp`   | `aboutPageHeroPortrait`                        | Dumbbell curl, smiling (4:5 crop of 3:2)             |
-| `coaching/coaching-hero-pullup-1600x2000.webp` | `coachingHeroImage`                            | Pull-up (4:5 crop of 3:2)                            |
-| `brand/social-share-1200x630.jpg`              | `DEFAULT_SOCIAL_IMAGE` (`src/content/site.ts`) | Medicine-ball portrait (wide crop)                   |
+| File                                                | Slot (`homeMedia.*`)                           | Source photo                                         |
+| --------------------------------------------------- | ---------------------------------------------- | ---------------------------------------------------- |
+| `home/hero-portrait-medball-1600x2000.webp`         | `heroPortrait`                                 | Medicine-ball portrait (native 4:5)                  |
+| `home/lifestyle-stair-climber-2560x1440.webp`       | `lifestyleBand`                                | Stair climber (16:9, `objectPosition: "center 15%"`) |
+| `about/about-teaser-curl-focus-1600x2000.webp`      | `aboutTrainerPortrait`                         | Dumbbell curl, focused (4:5 crop of 3:2)             |
+| `about/about-hero-curl-smile-1600x2000.webp`        | `aboutPageHeroPortrait`                        | Dumbbell curl, smiling (4:5 crop of 3:2)             |
+| `coaching/coaching-hero-pullup-1600x2000.webp`      | `coachingHeroImage`                            | Pull-up (4:5 crop of 3:2)                            |
+| `about/about-training-leg-extension-1600x2000.webp` | `aboutPageTrainingAction`                      | Leg extension (4:5, cropped by Nate)                 |
+| `brand/social-share-1200x630.jpg`                   | `DEFAULT_SOCIAL_IMAGE` (`src/content/site.ts`) | Medicine-ball portrait (wide crop)                   |
 
-Still open: `heroDetail`, `coachingAction` (not yet rendered by any component), a real client-coaching interaction photo (requires client permission), `coachingEnvironmentImage`, the remaining `/about` slots, NFG app screenshots, and brand assets.
+Still open: `heroDetail`, `coachingAction` (the wide band under the homepage coaching cards), `aboutPageCoachingInteraction` (requires client permission), `aboutPageTechnicalScene`, `coachingEnvironmentImage` (defined but not rendered yet), NFG app screenshots, and brand assets. `about/about-teaser-curl-focus-1600x2000.webp` is the current `aboutTrainerPortrait` and may be replaced by a stronger portrait later.
 
 ## Planned professional photo shoot
 
@@ -58,7 +59,7 @@ Each row is a configurable slot in `src/content/media.ts` (`homeMedia`). Until a
 | -------------------------- | ----------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
 | `heroPortrait`             | `home/`     | Vertical 4:5                                                            | Primary hero image — the trainer, in frame, not a stock photo.                                         |
 | `heroDetail`               | `home/`     | Vertical or square detail                                               | Optional smaller accent shot (e.g. a training/equipment detail); only shown at desktop widths.         |
-| `coachingAction`           | `coaching/` | Horizontal 3:2 (wide)                                                   | One wide supporting image below the coaching-style cards.                                              |
+| `coachingAction`           | `coaching/` | Renders 2:1 (mobile) / 21:9 (sm+)                                       | One wide supporting image below the coaching-style cards.                                              |
 | `aboutTrainerPortrait`     | `about/`    | Vertical 4:5                                                            | First-priority About section image.                                                                    |
 | `aboutCoachingInteraction` | `about/`    | Vertical 4:5                                                            | Used only if a trainer portrait isn't set (requires client permission).                                |
 | `aboutTrainingAction`      | `about/`    | Vertical 4:5                                                            | Used only if neither of the above is set.                                                              |
