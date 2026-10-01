@@ -26,14 +26,14 @@ export function PersonalIntroduction() {
           aspectClassName="aspect-4/5"
           fallbackVariant="texture"
           className="shadow-elevated"
-          sizes="(min-width: 1024px) 400px, 50vw"
+          sizes="(min-width: 1280px) 588px, (min-width: 640px) 50vw, 100vw"
         />
         <PhotoFrame
           image={homeMedia.aboutPageCoachingInteraction}
           aspectClassName="aspect-4/5"
           fallbackVariant="texture"
           className="shadow-elevated"
-          sizes="(min-width: 1024px) 400px, 50vw"
+          sizes="(min-width: 1280px) 588px, (min-width: 640px) 50vw, 100vw"
         />
       </div>
     </Section>
