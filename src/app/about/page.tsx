@@ -6,6 +6,7 @@ import { PhilosophySection } from "@/components/about/philosophy-section";
 import { TechnicalBackgroundSection } from "@/components/about/technical-background-section";
 import { ClientExpectationsSection } from "@/components/about/client-expectations-section";
 import { AboutFinalCta } from "@/components/about/about-final-cta";
+import { PersonJsonLd } from "@/components/person-json-ld";
 import {
   DEFAULT_SOCIAL_IMAGE,
   SITE_NAME,
@@ -42,6 +43,7 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <main>
+      <PersonJsonLd />
       <AboutHero />
       <TrustStrip />
       <PersonalIntroduction />

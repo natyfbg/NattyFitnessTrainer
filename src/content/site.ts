@@ -3,14 +3,14 @@ export const SITE_NAME = "Natty Fitness Trainer" as const;
 export const SITE_TAGLINE =
   "Personal training and coaching with Nathnael Gebre." as const;
 
-const DEFAULT_SITE_URL =
-  "https://natty-fitness-trainer.natyfbg.workers.dev" as const;
+const DEFAULT_SITE_URL = "https://www.nattyfitnesstrainer.com" as const;
 
 /**
  * Canonical site URL used for absolute links, metadata, and JSON-LD.
- * Overridable via the public NEXT_PUBLIC_SITE_URL env var once a custom
- * domain is confirmed — see docs/deployment.md. This is a public value,
- * not a secret.
+ * Defaults to the production custom domain (the www host is canonical; the
+ * bare domain redirects to it). Overridable via the public
+ * NEXT_PUBLIC_SITE_URL env var — see docs/deployment.md. This is a public
+ * value, not a secret.
  */
 export const SITE_URL: string = (
   process.env.NEXT_PUBLIC_SITE_URL ?? DEFAULT_SITE_URL

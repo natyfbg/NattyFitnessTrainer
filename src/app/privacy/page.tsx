@@ -92,6 +92,17 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="font-display text-xl font-medium text-foreground">
+              Site analytics
+            </h2>
+            <p className="mt-2">
+              This site uses Cloudflare Web Analytics to count visits and see
+              which pages are viewed. It doesn&rsquo;t use cookies, and it
+              doesn&rsquo;t track you across other websites.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="font-display text-xl font-medium text-foreground">
               No sale of your information
             </h2>
             <p className="mt-2">Consultation information is never sold.</p>
