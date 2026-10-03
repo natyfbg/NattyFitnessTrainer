@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { SITE_NAME } from "@/content/site";
 import { headerNavigation } from "@/content/navigation";
@@ -5,6 +6,7 @@ import { heroContent } from "@/content/home";
 import { CtaLink } from "./cta-link";
 import { Container } from "./container";
 import { MobileNav } from "./mobile-nav";
+import logoMark from "../../public/images/brand/logo-mark-256.png";
 
 /**
  * Site header. Desktop nav and the logo stay a Server Component; only the
@@ -17,8 +19,16 @@ export function SiteHeader() {
       <Container className="relative flex h-16 items-center justify-between sm:h-20">
         <Link
           href="/"
-          className="font-display text-lg font-medium tracking-tight text-foreground sm:text-xl"
+          className="flex items-center gap-2.5 font-display text-lg font-medium tracking-tight text-foreground sm:gap-3 sm:text-xl"
         >
+          <Image
+            src={logoMark}
+            alt=""
+            width={32}
+            height={32}
+            priority
+            className="h-7 w-7 sm:h-8 sm:w-8"
+          />
           {SITE_NAME}
         </Link>
 

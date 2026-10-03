@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/container";
 import { CtaLink } from "@/components/cta-link";
+import { socialLinks } from "@/content/social";
 
 export const metadata: Metadata = {
   title: "Thank You",
@@ -30,6 +31,29 @@ export default function ConsultationThankYouPage() {
           A more detailed fitness assessment may follow as part of getting
           started, once we connect.
         </p>
+        {socialLinks.length > 0 ? (
+          <p className="mt-4 max-w-[60ch] text-foreground-muted">
+            In the meantime, see Nathnael&rsquo;s training on{" "}
+            {socialLinks.map((link, index) => (
+              <span key={link.href}>
+                {index > 0
+                  ? index === socialLinks.length - 1
+                    ? " and "
+                    : ", "
+                  : null}
+                <a
+                  href={link.href}
+                  target="_blank"
+                  rel="me noopener noreferrer"
+                  className="text-foreground underline hover:no-underline"
+                >
+                  {link.label}
+                </a>
+              </span>
+            ))}
+            .
+          </p>
+        ) : null}
         <CtaLink href="/" variant="secondary" className="mt-8">
           Back to Home
         </CtaLink>

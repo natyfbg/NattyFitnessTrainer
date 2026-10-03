@@ -1,20 +1,21 @@
+import Image from "next/image";
 import Link from "next/link";
 import { SITE_NAME, SITE_TAGLINE } from "@/content/site";
 import { primaryNavigation } from "@/content/navigation";
+import { socialLinks } from "@/content/social";
 import { trainer } from "@/content/trainer";
+import logoMark from "../../public/images/brand/logo-mark-256.png";
 import { Container } from "./container";
 
 export function SiteFooter() {
   const year = new Date().getFullYear();
-  const hasSocialLinks = Boolean(
-    trainer.social.instagram || trainer.social.tiktok,
-  );
 
   return (
     <footer className="border-t border-border bg-background">
       <Container className="flex flex-col gap-8 py-12 sm:flex-row sm:justify-between">
         <div className="max-w-sm">
-          <p className="font-display text-lg font-medium text-foreground">
+          <p className="flex items-center gap-3 font-display text-lg font-medium text-foreground">
+            <Image src={logoMark} alt="" width={36} height={36} />
             {SITE_NAME}
           </p>
           <p className="mt-2 text-sm text-foreground-muted">{SITE_TAGLINE}</p>
@@ -40,28 +41,20 @@ export function SiteFooter() {
             </ul>
           </nav>
 
-          {hasSocialLinks ? (
-            <ul className="flex gap-4">
-              {trainer.social.instagram ? (
-                <li>
+          {socialLinks.length > 0 ? (
+            <ul aria-label="Social media" className="flex gap-4">
+              {socialLinks.map((link) => (
+                <li key={link.href}>
                   <a
-                    href={trainer.social.instagram}
+                    href={link.href}
+                    target="_blank"
+                    rel="me noopener noreferrer"
                     className="text-sm text-foreground-muted hover:text-foreground"
                   >
-                    Instagram
+                    {link.label}
                   </a>
                 </li>
-              ) : null}
-              {trainer.social.tiktok ? (
-                <li>
-                  <a
-                    href={trainer.social.tiktok}
-                    className="text-sm text-foreground-muted hover:text-foreground"
-                  >
-                    TikTok
-                  </a>
-                </li>
-              ) : null}
+              ))}
             </ul>
           ) : null}
         </div>

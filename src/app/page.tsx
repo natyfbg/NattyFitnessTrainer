@@ -9,6 +9,7 @@ import { NfgAppPreview } from "@/components/home/nfg-app-preview";
 import { InsightsPreview } from "@/components/home/insights-preview";
 import { FaqPreview } from "@/components/home/faq-preview";
 import { ConsultationCta } from "@/components/home/consultation-cta";
+import { PersonJsonLd } from "@/components/person-json-ld";
 import {
   DEFAULT_SOCIAL_IMAGE,
   SITE_NAME,
@@ -42,6 +43,7 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <main>
+      <PersonJsonLd />
       <Hero />
       <TrustStrip />
       <CoachingStyles />
