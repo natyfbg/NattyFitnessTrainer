@@ -3,6 +3,8 @@ export interface TrainerSocialLinks {
   readonly instagram: string | null;
   /** Full profile URL, or null until provided. */
   readonly tiktok: string | null;
+  /** Full channel URL, or null until provided. */
+  readonly youtube: string | null;
 }
 
 export interface TrainerContact {
@@ -37,11 +39,14 @@ export const trainer: Trainer = {
   technicalBackground:
     "A background in software and technology shapes a structured, detail-oriented approach to programming and tracking progress.",
   social: {
-    instagram: null,
-    tiktok: null,
+    instagram: "https://www.instagram.com/nattyfitnessgk/",
+    tiktok: "https://www.tiktok.com/@hanetayyy",
+    youtube: "https://www.youtube.com/@NattyFitnessGeek",
   },
   contact: {
+    /** Public email not chosen yet — the business inbox stays private. */
     email: null,
-    phone: null,
+    /** Provided by Nathnael for client billing and support contact. */
+    phone: "(707) 861-0580",
   },
 };
