@@ -44,8 +44,12 @@ export const trainer: Trainer = {
     youtube: "https://www.youtube.com/@NattyFitnessGeek",
   },
   contact: {
-    /** Public email not chosen yet — the business inbox stays private. */
-    email: null,
+    /**
+     * Public contact address (forwarded by Cloudflare Email Routing). The
+     * private business inbox used by the consultation flow stays
+     * environment-configured and is never published.
+     */
+    email: "hello@nattyfitnesstrainer.com",
     /** Provided by Nathnael for client billing and support contact. */
     phone: "(707) 861-0580",
   },

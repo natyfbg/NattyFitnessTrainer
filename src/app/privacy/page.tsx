@@ -7,11 +7,12 @@ import {
   SITE_LOCALE,
   getCanonicalUrl,
 } from "@/content/site";
+import { contactEmail } from "@/content/contact";
 import { privacyLastUpdated } from "@/content/privacy";
 
 const title = "Privacy Notice";
 const description =
-  "How Natty Fitness Trainer handles information submitted through the free consultation form.";
+  "How Natty Fitness Trainer handles information submitted through the free consultation form, and how coaching payments are processed.";
 
 export const metadata: Metadata = {
   title,
@@ -49,9 +50,10 @@ export default function PrivacyPage() {
         <div className="mt-8 flex flex-col gap-6 text-foreground-muted">
           <p>
             This notice explains what happens to the information you submit
-            through the free consultation form on this site. It&rsquo;s a
-            plain-language notice, not legal advice, and hasn&rsquo;t been
-            reviewed as a certified legal compliance document.
+            through the free consultation form on this site, and how coaching
+            payments are handled. It&rsquo;s a plain-language notice, not legal
+            advice, and hasn&rsquo;t been reviewed as a certified legal
+            compliance document.
           </p>
 
           <section>
@@ -103,6 +105,21 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="font-display text-xl font-medium text-foreground">
+              Payments
+            </h2>
+            <p className="mt-2">
+              Coaching payments are processed by Stripe. You enter your card or
+              bank details on Stripe&rsquo;s secure pages, not on this site, and
+              Nathnael never sees or stores your full card number. Stripe shares
+              your name, email address, payment history, and limited card
+              details (such as the card brand and last four digits) so your plan
+              can be managed. Stripe&rsquo;s own privacy policy covers how it
+              handles your payment information.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="font-display text-xl font-medium text-foreground">
               No sale of your information
             </h2>
             <p className="mt-2">Consultation information is never sold.</p>
@@ -137,7 +154,18 @@ export default function PrivacyPage() {
             </h2>
             <p className="mt-2">
               To make a privacy-related request (for example, to ask what
-              information is on file or to request its deletion), use the{" "}
+              information is on file or to request its deletion), email{" "}
+              {contactEmail ? (
+                <a
+                  href={contactEmail.href}
+                  className="underline hover:no-underline"
+                >
+                  {contactEmail.label}
+                </a>
+              ) : (
+                "Nathnael"
+              )}{" "}
+              or use the{" "}
               <Link
                 href="/consultation"
                 className="underline hover:no-underline"
