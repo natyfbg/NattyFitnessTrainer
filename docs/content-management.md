@@ -21,7 +21,10 @@ All business copy is centralized under `src/content/` as typed TypeScript module
 | `src/content/coaching.ts`   | Training styles (online/hybrid/in-person) and coaching benefits                                                   |
 | `src/content/process.ts`    | "How it works" steps                                                                                              |
 | `src/content/faq.ts`        | FAQ foundation                                                                                                    |
-| `src/content/navigation.ts` | Primary navigation items                                                                                          |
+| `src/content/navigation.ts` | Primary, header and footer navigation items                                                                       |
+| `src/content/social.ts`     | Social profile links (built from `trainer.social`; `null` URLs are skipped)                                       |
+| `src/content/contact.ts`    | Email, call and text links built from `trainer.contact`                                                           |
+| `src/content/terms.ts`      | `/terms` booking, cancellation and refund policy, plus `termsLastUpdated`                                         |
 | `src/content/nfg-app.ts`    | Upcoming NFG app wording                                                                                          |
 | `src/content/insights/`     | Insights article types and the article registry (see below)                                                       |
 
@@ -37,7 +40,7 @@ bio: "Write the real biography copy here.",
 
 Leave it as `null` until real copy is provided.
 
-### How to add Instagram and TikTok URLs
+### How to update social profile URLs
 
 Edit `social` in `src/content/trainer.ts` once the exact URLs are confirmed:
 
@@ -45,10 +48,17 @@ Edit `social` in `src/content/trainer.ts` once the exact URLs are confirmed:
 social: {
   instagram: "https://instagram.com/<handle>",
   tiktok: "https://tiktok.com/@<handle>",
+  youtube: "https://www.youtube.com/@<handle>",
 },
 ```
 
+The footer shows each one as an icon. A new platform also needs an entry in `src/content/social.ts` and its glyph in `src/components/social-icon.tsx`.
+
 Do not add a URL that hasn't been explicitly provided, and never use a placeholder like `"#"`.
+
+### How to update the cancellation policy
+
+Edit `src/content/terms.ts` and set `termsLastUpdated` to the date of the change. Keep plan prices and per-plan session counts off this page (pricing is shared privately). If you change something clients pay, the policy itself promises 7 to 30 days' notice by text or email.
 
 ### How to update credentials and general service area
 
