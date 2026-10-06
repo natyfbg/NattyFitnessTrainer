@@ -41,6 +41,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "yearly",
       priority: 0.2,
     },
+    {
+      url: getCanonicalUrl("/terms"),
+      changeFrequency: "yearly",
+      priority: 0.2,
+    },
   ];
 
   // getPublishedArticles() already excludes drafts — the same
