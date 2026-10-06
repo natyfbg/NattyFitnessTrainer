@@ -8,7 +8,7 @@ import { contactEmail, contactSms, type ContactLink } from "./contact";
  *
  * Update `termsLastUpdated` whenever this content materially changes.
  */
-export const termsLastUpdated = "2026-10-05";
+export const termsLastUpdated = "2026-10-06";
 
 /** Plain text, or a run of text and links (e.g. a phone number). */
 export type TermsText = string | readonly (string | ContactLink)[];
