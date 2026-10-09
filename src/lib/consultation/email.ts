@@ -1,9 +1,13 @@
 // Server-only: reads RESEND_API_KEY. Never import this file from a
 // "use client" component — only from the API route handler.
 import {
+  consultationConfirmationEmailContent as confirmationCopy,
+  consultationFollowUpLinks,
   getCoachingInterestLabel,
   getPrimaryGoalLabel,
 } from "@/content/consultation";
+import { trainer } from "@/content/trainer";
+import { buildBookingLink, buildQuestionnaireLink } from "./links";
 import type { ConsultationEmailFields } from "./types";
 
 const RESEND_API_URL = "https://api.resend.com/emails";
@@ -141,6 +145,176 @@ export async function sendConsultationEmail(
     }
 
     return { delivered: true };
+  } catch {
+    return { delivered: false, reason: "provider-error" };
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+export interface SendConsultationConfirmationParams {
+  readonly requestId: string;
+  readonly fullName: string;
+  readonly email: string;
+}
+
+/** Letters (including common accented ones), apostrophes and hyphens only. */
+const FIRST_NAME_PATTERN =
+  /^[A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u024F][A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u024F'\u2019-]{0,29}$/;
+
+/**
+ * The only visitor-typed text the confirmation repeats: a first name that
+ * passes a strict letters-only check. Anything else gets "there", so the
+ * form can't be used to put someone's own message in an email to a
+ * stranger.
+ */
+function getGreetingName(fullName: string): string {
+  const first = fullName.trim().split(/\s+/)[0] ?? "";
+  return FIRST_NAME_PATTERN.test(first)
+    ? first
+    : confirmationCopy.greetingFallbackName;
+}
+
+interface ConfirmationSection {
+  readonly text: string;
+  readonly linkLabel: string;
+  readonly href: string;
+}
+
+function buildConfirmationSections(
+  params: SendConsultationConfirmationParams,
+): ConfirmationSection[] {
+  const { bookingUrl, questionnaire } = consultationFollowUpLinks;
+  const sections: ConfirmationSection[] = [];
+
+  if (bookingUrl !== null) {
+    sections.push({
+      text: confirmationCopy.booking.text,
+      linkLabel: confirmationCopy.booking.linkLabel,
+      href: buildBookingLink(bookingUrl, {
+        fullName: params.fullName,
+        email: params.email,
+      }),
+    });
+  }
+
+  if (questionnaire !== null) {
+    sections.push({
+      text: confirmationCopy.questionnaire.text,
+      linkLabel: confirmationCopy.questionnaire.linkLabel,
+      href: buildQuestionnaireLink(questionnaire, params.email),
+    });
+  }
+
+  return sections;
+}
+
+function buildConfirmationText(
+  greetingName: string,
+  sections: readonly ConfirmationSection[],
+): string {
+  const contactLine = trainer.contact.phone
+    ? confirmationCopy.questionsWithPhone(trainer.contact.phone)
+    : confirmationCopy.questionsWithoutPhone;
+
+  const lines: string[] = [`Hi ${greetingName},`, ""];
+
+  if (sections.length === 0) {
+    lines.push(confirmationCopy.noLinksBody);
+  } else {
+    lines.push(
+      sections.length === 1
+        ? confirmationCopy.introOneStep
+        : confirmationCopy.introTwoSteps,
+    );
+    sections.forEach((section, index) => {
+      lines.push(
+        "",
+        `${sections.length > 1 ? `${index + 1}. ` : ""}${section.text}`,
+        `${section.linkLabel}: ${section.href}`,
+      );
+    });
+  }
+
+  lines.push("", contactLine, "", confirmationCopy.signOff);
+  return lines.join("\n");
+}
+
+function buildConfirmationHtml(
+  greetingName: string,
+  sections: readonly ConfirmationSection[],
+): string {
+  const contactLine = trainer.contact.phone
+    ? confirmationCopy.questionsWithPhone(trainer.contact.phone)
+    : confirmationCopy.questionsWithoutPhone;
+
+  const parts: string[] = [`<p>Hi ${escapeHtml(greetingName)},</p>`];
+
+  if (sections.length === 0) {
+    parts.push(`<p>${escapeHtml(confirmationCopy.noLinksBody)}</p>`);
+  } else {
+    const intro =
+      sections.length === 1
+        ? confirmationCopy.introOneStep
+        : confirmationCopy.introTwoSteps;
+    parts.push(`<p>${escapeHtml(intro)}</p>`);
+    for (const section of sections) {
+      parts.push(
+        `<p>${escapeHtml(section.text)}<br /><a href="${escapeHtml(section.href)}">${escapeHtml(section.linkLabel)}</a></p>`,
+      );
+    }
+  }
+
+  parts.push(
+    `<p>${escapeHtml(contactLine)}</p>`,
+    `<p>${escapeHtml(confirmationCopy.signOff)}</p>`,
+  );
+  return parts.join("\n");
+}
+
+/**
+ * The visitor's confirmation, from CONSULTATION_FROM_EMAIL (hello@). Sent
+ * only after Nathnael's copy was delivered, and best effort: a failure here
+ * never changes what the visitor is told, and nothing is logged. Replies
+ * go to the From address, which forwards to Nathnael.
+ */
+export async function sendConsultationConfirmationEmail(
+  params: SendConsultationConfirmationParams,
+): Promise<SendConsultationEmailResult> {
+  const apiKey = process.env.RESEND_API_KEY;
+  const fromEmail = process.env.CONSULTATION_FROM_EMAIL;
+
+  if (!apiKey || !fromEmail) {
+    return { delivered: false, reason: "not-configured" };
+  }
+
+  const greetingName = getGreetingName(params.fullName);
+  const sections = buildConfirmationSections(params);
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), SEND_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(RESEND_API_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        "Idempotency-Key": `consultation-confirmation-${params.requestId}`,
+      },
+      body: JSON.stringify({
+        from: fromEmail,
+        to: [params.email],
+        subject: confirmationCopy.subject,
+        text: buildConfirmationText(greetingName, sections),
+        html: buildConfirmationHtml(greetingName, sections),
+      }),
+      signal: controller.signal,
+    });
+
+    return response.ok
+      ? { delivered: true }
+      : { delivered: false, reason: "provider-error" };
   } catch {
     return { delivered: false, reason: "provider-error" };
   } finally {

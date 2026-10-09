@@ -12,7 +12,7 @@ import { privacyLastUpdated } from "@/content/privacy";
 
 const title = "Privacy Notice";
 const description =
-  "How Natty Fitness Trainer handles information submitted through the free consultation form, and how coaching payments are processed.";
+  "How Natty Fitness Trainer handles information submitted through the free consultation form, booking and the questionnaire, and how coaching payments are processed.";
 
 export const metadata: Metadata = {
   title,
@@ -50,10 +50,10 @@ export default function PrivacyPage() {
         <div className="mt-8 flex flex-col gap-6 text-foreground-muted">
           <p>
             This notice explains what happens to the information you submit
-            through the free consultation form on this site, and how coaching
-            payments are handled. It&rsquo;s a plain-language notice, not legal
-            advice, and hasn&rsquo;t been reviewed as a certified legal
-            compliance document.
+            through the free consultation form on this site, what happens after
+            you send it, and how coaching payments are handled. It&rsquo;s a
+            plain-language notice, not legal advice, and hasn&rsquo;t been
+            reviewed as a certified legal compliance document.
           </p>
 
           <section>
@@ -78,6 +78,12 @@ export default function PrivacyPage() {
               get back to you personally by email. Submitting this form does not
               enroll you in any marketing emails or mailing list.
             </p>
+            <p className="mt-2">
+              After you send it, you get one confirmation email with links to
+              book your call and to the questionnaire. If you haven&rsquo;t
+              booked or filled in the questionnaire, up to two short reminders
+              follow over the next few days; reply STOP to end them.
+            </p>
           </section>
 
           <section>
@@ -88,7 +94,23 @@ export default function PrivacyPage() {
               This form is protected by Cloudflare Turnstile, which checks that
               submissions come from real visitors rather than automated bots.
               Submitted information is sent using Resend, an email delivery
-              service, to Nathnael&rsquo;s inbox.
+              service, to Nathnael&rsquo;s inbox, and Resend also sends your
+              confirmation email.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="font-display text-xl font-medium text-foreground">
+              Booking and the questionnaire
+            </h2>
+            <p className="mt-2">
+              Calls are booked through Cal.com. The thank-you page loads
+              Cal.com&rsquo;s booking calendar and fills in the name and email
+              you just entered, so Cal.com receives them when the calendar
+              loads. A booked call is added to Nathnael&rsquo;s Google Calendar.
+              The questionnaire is a Google Form: your answers, including any
+              readiness-to-exercise answers, are kept in a private Google Sheet
+              that only Nathnael can access, never on this website.
             </p>
           </section>
 
@@ -134,6 +156,13 @@ export default function PrivacyPage() {
               but no method of transmission or storage can be guaranteed
               completely secure. Submitted information is kept only as long as
               reasonably needed to respond to and manage your inquiry.
+            </p>
+            <p className="mt-2">
+              Your name, email, coaching interest and the date you sent the form
+              are also kept in a private Google Sheet used to follow up on
+              requests. If you don&rsquo;t become a client, questionnaire
+              answers are deleted after 6 months and request records after 12
+              months.
             </p>
           </section>
 
