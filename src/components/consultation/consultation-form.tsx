@@ -13,6 +13,7 @@ import {
   CONSULTATION_FIELD_LIMITS,
   validateConsultationInput,
 } from "@/lib/consultation/validation";
+import { saveConsultationContact } from "@/lib/consultation/contact-handoff";
 import type {
   ConsultationApiResponse,
   ConsultationFieldErrors,
@@ -201,6 +202,14 @@ export function ConsultationForm({
       }
 
       if (response.status === 201 && data?.ok) {
+        // Lets the thank-you page pre-fill the booking calendar and the
+        // questionnaire link. Stays in this tab only, never in a URL.
+        if (validation.normalized) {
+          saveConsultationContact({
+            fullName: validation.normalized.fullName,
+            email: validation.normalized.email,
+          });
+        }
         setStatusMessage("Request sent — redirecting…");
         router.push("/consultation/thank-you");
         return;

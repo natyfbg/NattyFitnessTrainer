@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import {
   consultationGenericErrorMessage,
   consultationUnavailableMessage,
@@ -5,7 +6,11 @@ import {
 } from "@/content/consultation";
 import { validateConsultationInput } from "@/lib/consultation/validation";
 import { verifyTurnstileToken } from "@/lib/consultation/turnstile";
-import { sendConsultationEmail } from "@/lib/consultation/email";
+import {
+  sendConsultationConfirmationEmail,
+  sendConsultationEmail,
+} from "@/lib/consultation/email";
+import { logConsultationLead } from "@/lib/consultation/leads";
 import {
   isConsultationDevBypassActive,
   isConsultationFormEnabled,
@@ -246,9 +251,10 @@ export async function POST(request: Request): Promise<Response> {
       return jsonResponse({ ok: true, requestId }, 201);
     }
 
+    const submittedAt = new Date().toISOString();
     const emailResult = await sendConsultationEmail({
       requestId,
-      submittedAt: new Date().toISOString(),
+      submittedAt,
       // Explicit field list — never forwards the Turnstile token to email.
       input: {
         fullName: validation.normalized.fullName,
@@ -275,6 +281,24 @@ export async function POST(request: Request): Promise<Response> {
         status,
       );
     }
+
+    // Nathnael has the request. The visitor's confirmation and the Leads
+    // tab row happen after the response is sent, so they never slow the
+    // visitor down, and a failure in either never changes what they're
+    // told. Neither logs anything about the visitor.
+    const { fullName, email, coachingInterest } = validation.normalized;
+    after(async () => {
+      await Promise.allSettled([
+        sendConsultationConfirmationEmail({ requestId, fullName, email }),
+        logConsultationLead({
+          requestId,
+          submittedAt,
+          fullName,
+          email,
+          coachingInterest,
+        }),
+      ]);
+    });
 
     return jsonResponse({ ok: true, requestId }, 201);
   } catch {
