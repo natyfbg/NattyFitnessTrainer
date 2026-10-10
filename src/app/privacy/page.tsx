@@ -108,8 +108,9 @@ export default function PrivacyPage() {
               Cal.com&rsquo;s booking calendar and fills in the name and email
               you just entered, so Cal.com receives them when the calendar
               loads. A booked call is added to Nathnael&rsquo;s Google Calendar.
-              The questionnaire is a Google Form: your answers, including any
-              readiness-to-exercise answers, are kept in a private Google Sheet
+              The questionnaire is a Google Form, and its link fills in your
+              name, email and coaching interest. Your answers, including any
+              health and readiness answers, are kept in a private Google Sheet
               that only Nathnael can access, never on this website.
             </p>
           </section>

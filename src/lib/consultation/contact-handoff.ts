@@ -1,9 +1,13 @@
-// Browser-only. Hands the visitor's name and email from the consultation
-// form to the thank-you page so the booking calendar and questionnaire
-// link can be pre-filled. Kept in sessionStorage (this tab only, cleared
+// Browser-only. Hands the visitor's name, email and coaching interest from
+// the consultation form to the thank-you page so the booking calendar and
+// questionnaire link can be pre-filled. Kept in sessionStorage (this tab only, cleared
 // when it closes) and never put in a URL on this site. Every access is
 // wrapped in try/catch because storage can be unavailable (private
 // browsing, blocked site data); the page then simply isn't pre-filled.
+import {
+  coachingInterestOptions,
+  type CoachingInterestValue,
+} from "@/content/consultation";
 import type { ConsultationContact } from "./links";
 
 const STORAGE_KEY = "nft.consultation.contact";
@@ -52,7 +56,14 @@ export function parseStoredContact(
     ) {
       return null;
     }
-    return { fullName: candidate.fullName, email: candidate.email };
+    const coachingInterest = coachingInterestOptions.find(
+      (option) => option.value === candidate.coachingInterest,
+    )?.value as CoachingInterestValue | undefined;
+    return {
+      fullName: candidate.fullName,
+      email: candidate.email,
+      ...(coachingInterest ? { coachingInterest } : {}),
+    };
   } catch {
     return null;
   }

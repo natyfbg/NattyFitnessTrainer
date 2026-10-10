@@ -32,10 +32,15 @@
  *        QUESTIONNAIRE_FORM_ID      The Google Form's ID (the long part of
  *                                   its edit link, between /d/ and /edit).
  *        QUESTIONNAIRE_URL          The form's .../viewform link.
- *        QUESTIONNAIRE_EMAIL_ENTRY  The Email question's pre-fill key,
- *                                   e.g. entry.123456789.
- *        QUESTIONNAIRE_EMAIL_TITLE  The Email question's title, if it isn't
- *                                   exactly "Email".
+ *        QUESTIONNAIRE_EMAIL_ENTRY  Pre-fill key of the Email question
+ *                                   (1.1), e.g. entry.123456789.
+ *        QUESTIONNAIRE_NAME_ENTRY   Pre-fill key of Full name (1.2).
+ *        QUESTIONNAIRE_FORMAT_ENTRY Pre-fill key of the coaching-format
+ *                                   question (5.7).
+ *        QUESTIONNAIRE_EMAIL_TITLE  The Email question's title (and so its
+ *                                   column header), if it isn't exactly
+ *                                   "Email".
+ *      build-questionnaire.gs prints the URL, form ID and the three keys.
  *        FROM_ADDRESS               hello@nattyfitnesstrainer.com, set up
  *                                   in Gmail under "Send mail as".
  *        CALENDAR_ID                Optional. Defaults to your main calendar.
@@ -74,6 +79,9 @@ const STATUSES = ["New", "Replied", "Client", "Closed"];
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const QUESTIONNAIRE_KEEP_DAYS = 183;
+
+/** The questionnaire's coaching-format answers (5.7), as the website sends them. */
+const FORMAT_ANSWERS = ["In-person", "Online", "Hybrid", "Not sure"];
 const LEADS_KEEP_DAYS = 365;
 const MAX_REMINDER_AGE_DAYS = 7;
 
@@ -242,6 +250,7 @@ function runDaily() {
       to: email,
       fromAddress: fromAddress,
       name: String(row[columns["Name"]] || ""),
+      coachingInterest: String(row[columns["Coaching interest"]] || "").trim(),
       isFinal: reminder === 2,
       needsBooking: needsBooking,
       needsQuestionnaire: needsQuestionnaire,
@@ -282,9 +291,14 @@ function sendReminder_(options) {
   }
   if (options.needsQuestionnaire) {
     items.push({
-      text: "Fill out the questionnaire so our call can focus on you.",
+      text: "Fill out the questionnaire (about 10 minutes) so our call can focus on you.",
       label: "Start the questionnaire",
-      href: questionnaireLink_(settings, options.to),
+      href: questionnaireLink_(
+        settings,
+        options.to,
+        options.name,
+        options.coachingInterest,
+      ),
     });
   }
 
@@ -395,24 +409,13 @@ function runRetention_(settings, now) {
 }
 
 function deleteOldResponseRows_(form, settings, cutoff, clients) {
-  if (form.getDestinationType() !== FormApp.DestinationType.SPREADSHEET) {
-    return;
-  }
-  const spreadsheet = SpreadsheetApp.openById(form.getDestinationId());
-  const formUrl = form.getEditUrl().replace(/\/edit.*$/, "");
-  const sheet = spreadsheet.getSheets().find(function (candidate) {
-    const linked = candidate.getFormUrl();
-    return linked && linked.replace(/\/viewform.*$|\/edit.*$/, "") === formUrl;
-  });
+  const sheet = findResponsesSheet_(form);
   if (!sheet) {
     return;
   }
 
   const values = sheet.getDataRange().getValues();
-  const header = values[0].map(function (cell) {
-    return String(cell).trim().toLowerCase();
-  });
-  const emailColumn = header.indexOf(settings.emailTitle.toLowerCase());
+  const emailColumn = headerColumn_(values[0], settings.emailTitle);
   for (let r = values.length - 1; r >= 1; r--) {
     const timestamp = toDate_(values[r][0]);
     const email =
@@ -475,6 +478,9 @@ function readSettings_(props) {
     questionnaireUrl: props.getProperty("QUESTIONNAIRE_URL") || "",
     questionnaireEmailEntry:
       props.getProperty("QUESTIONNAIRE_EMAIL_ENTRY") || "",
+    questionnaireNameEntry: props.getProperty("QUESTIONNAIRE_NAME_ENTRY") || "",
+    questionnaireFormatEntry:
+      props.getProperty("QUESTIONNAIRE_FORMAT_ENTRY") || "",
     emailTitle: props.getProperty("QUESTIONNAIRE_EMAIL_TITLE") || "Email",
     fromAddress: (props.getProperty("FROM_ADDRESS") || "").trim(),
     calendarId: props.getProperty("CALENDAR_ID") || "",
@@ -561,20 +567,75 @@ function latestCallSince_(starts, received) {
   return latest;
 }
 
+/**
+ * Everyone who has answered the questionnaire, by email (trimmed, lower
+ * case). Read from the private responses sheet, finding the email column by
+ * its header, so adding or moving questions can't break it.
+ */
 function getQuestionnaireEmails_(settings) {
   const emails = new Set();
   if (!settings.formId) {
     return emails;
   }
-  FormApp.openById(settings.formId)
-    .getResponses()
-    .forEach(function (response) {
-      const email = responseEmail_(response, settings);
+  const form = FormApp.openById(settings.formId);
+  const sheet = findResponsesSheet_(form);
+
+  if (sheet) {
+    const values = sheet.getDataRange().getValues();
+    const emailColumn = headerColumn_(values[0], settings.emailTitle);
+    if (emailColumn < 0) {
+      throw new Error(
+        'The questionnaire responses sheet has no "' +
+          settings.emailTitle +
+          '" column. Set QUESTIONNAIRE_EMAIL_TITLE to the Email ' +
+          "question's title.",
+      );
+    }
+    for (let r = 1; r < values.length; r++) {
+      const email = String(values[r][emailColumn] || "")
+        .trim()
+        .toLowerCase();
       if (email) {
         emails.add(email);
       }
-    });
+    }
+    return emails;
+  }
+
+  // No linked sheet: read the form's own responses instead.
+  form.getResponses().forEach(function (response) {
+    const email = responseEmail_(response, settings);
+    if (email) {
+      emails.add(email);
+    }
+  });
   return emails;
+}
+
+/** The tab in the form's responses spreadsheet that receives its answers. */
+function findResponsesSheet_(form) {
+  if (form.getDestinationType() !== FormApp.DestinationType.SPREADSHEET) {
+    return null;
+  }
+  const spreadsheet = SpreadsheetApp.openById(form.getDestinationId());
+  const formUrl = form.getEditUrl().replace(/\/edit.*$/, "");
+  return (
+    spreadsheet.getSheets().find(function (candidate) {
+      const linked = candidate.getFormUrl();
+      return (
+        linked && linked.replace(/\/viewform.*$|\/edit.*$/, "") === formUrl
+      );
+    }) || null
+  );
+}
+
+function headerColumn_(headerRow, title) {
+  const wanted = String(title).trim().toLowerCase();
+  return headerRow
+    .map(function (cell) {
+      return String(cell).trim().toLowerCase();
+    })
+    .indexOf(wanted);
 }
 
 function responseEmail_(response, settings) {
@@ -640,18 +701,26 @@ function bookingLink_(bookingUrl, name, email) {
   );
 }
 
-function questionnaireLink_(settings, email) {
-  if (!settings.questionnaireEmailEntry) {
+/** The questionnaire link with email, name and coaching format filled in. */
+function questionnaireLink_(settings, email, name, coachingInterest) {
+  const fields = [];
+  const add = function (entry, value) {
+    if (entry && value) {
+      fields.push(encodeURIComponent(entry) + "=" + encodeURIComponent(value));
+    }
+  };
+  add(settings.questionnaireEmailEntry, email);
+  add(settings.questionnaireNameEntry, String(name || "").trim());
+  add(
+    settings.questionnaireFormatEntry,
+    FORMAT_ANSWERS.indexOf(coachingInterest) >= 0 ? coachingInterest : "",
+  );
+  if (fields.length === 0) {
     return settings.questionnaireUrl;
   }
   const separator = settings.questionnaireUrl.indexOf("?") >= 0 ? "&" : "?";
   return (
-    settings.questionnaireUrl +
-    separator +
-    "usp=pp_url&" +
-    encodeURIComponent(settings.questionnaireEmailEntry) +
-    "=" +
-    encodeURIComponent(email)
+    settings.questionnaireUrl + separator + "usp=pp_url&" + fields.join("&")
   );
 }
 

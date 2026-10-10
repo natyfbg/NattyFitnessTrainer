@@ -22,7 +22,7 @@ The full plan, including the daily reminder script, is in the Claude Doc "Natty 
 - **`src/lib/consultation/`** — server-only helpers (`turnstile.ts`, `email.ts`) plus shared types/validation (`types.ts`, `validation.ts`) that are safe to import from the client form too (no secrets in them).
 - **`/consultation/thank-you`** — a `noindex` confirmation page. It does not prove an email was delivered if visited directly. When `consultationFollowUpLinks` in `src/content/consultation.ts` has a booking link, it shows the Cal.com calendar (`BookingCalendar`); when it has a questionnaire, it shows the questionnaire button (`QuestionnaireLink`). Both are pre-filled with the name and email just sent, handed over in this tab's `sessionStorage` (`src/lib/consultation/contact-handoff.ts`), never in a URL on this site.
 - **Confirmation email** (`sendConsultationConfirmationEmail` in `src/lib/consultation/email.ts`) — sent from `CONSULTATION_FROM_EMAIL` only after Nathnael's copy was delivered, via `after()` so it never delays the response. It repeats nothing the visitor typed except a first name that passes a strict letters-only check, and it includes whichever of the booking and questionnaire links exist. A failure is silent and never changes what the visitor is told.
-- **Leads tab** (`src/lib/consultation/leads.ts`) — also after the response, posts the request ID, date, name, email and coaching interest (never goals, phone, area or anything health-related) to the Google Apps Script in [`docs/apps-script/consultation-leads.gs`](apps-script/consultation-leads.gs), which adds one row to the Leads sheet. Skipped when `LEADS_SCRIPT_URL` isn't set; a failure is silent.
+- **Leads tab** (`src/lib/consultation/leads.ts`) — also after the response, posts the request ID, date, name, email and coaching format in the questionnaire's wording (never goals, phone, area or anything health-related) to the Google Apps Script in [`docs/apps-script/consultation-leads.gs`](apps-script/consultation-leads.gs), which adds one row to the Leads sheet. Skipped when `LEADS_SCRIPT_URL` isn't set; a failure is silent.
 - **`/privacy`** — plain-language notice covering what the form collects and why.
 
 There is no database. This application stores nothing itself: a submission is emailed, and a minimal copy (name, email, coaching interest, date) goes to the private Leads sheet in Nathnael's Google account.
@@ -145,11 +145,24 @@ Set these in `consultationFollowUpLinks` (`src/content/consultation.ts`). They'r
 Current values: `bookingUrl` is the live Cal.com event. `questionnaire` is `QUESTIONNAIRE_PLACEHOLDER`, which is **not a working link**; it only lets the page and the email be tested with both links until the Google Form exists.
 
 - `bookingUrl`: the Cal.com event's public link, e.g. `https://cal.com/<username>/free-consultation`.
-- `questionnaire`: the Google Form's `…/viewform` link plus the pre-fill key of its Email question (`entry.123456789`). Get the key from the form's "Get pre-filled link" option: fill in the Email question, copy the link, and take the `entry.…` name from it.
+- `questionnaire`: the Google Form's `…/viewform` link plus `entryIds`, the pre-fill keys (`entry.123456789`) of the three questions the site fills in: `email` (1.1 "Email"), `name` (1.2 "Full name") and `format` (5.7, "Which coaching format are you leaning toward?"). `docs/apps-script/build-questionnaire.gs` prints all of them; the form's "Get pre-filled link" option shows them too.
+- `questionnaireFormatAnswers` maps the website's coaching-interest values to 5.7's answers: In-person, Online, Hybrid, Not sure. They must match the form's choices exactly, or the format pre-fill silently does nothing. The Leads sheet receives the same wording.
+
+## The questionnaire form
+
+The full question list is in the Claude Doc "Client Questionnaire — Natty Fitness Trainer (Draft v1)". [`docs/apps-script/build-questionnaire.gs`](apps-script/build-questionnaire.gs) generates the Google Form from it in one run (with branching at 3.11, 5.7 and 7.11, and a new private "Questionnaire responses (private)" sheet); after that, the form is edited in the Google Forms editor and the script is kept for history.
+
+Keeping the pre-fill working:
+
+- Edits in the Forms editor don't change the form link or the pre-fill keys.
+- Never delete and recreate Email (1.1), Full name (1.2) or the coaching-format question (5.7): a new question gets a new key. Rewording them is fine.
+- If 5.7's answers change, change `questionnaireFormatAnswers` too.
+- The reminder script finds the email column by its header ("Email"), so adding or moving questions doesn't break it. "Questionnaire done" means a response row whose email matches the lead's, trimmed and ignoring case.
+- No health answers ever leave the private responses sheet: the website, lead emails and the Leads tab never carry them.
 
 ## Go-live checklist
 
-1. Replace `QUESTIONNAIRE_PLACEHOLDER` with the real Google Form link and its Email question's `entry.…` key, and ship that change. Until then, every confirmation email would carry a broken questionnaire link.
+1. Replace `QUESTIONNAIRE_PLACEHOLDER` with the real Google Form link and its three pre-fill keys, and ship that change. Until then, every confirmation email would carry a broken questionnaire link.
 2. Merge and release the booking code the usual way (backup tag first).
 3. In Workers Builds, set `NEXT_PUBLIC_CONSULTATION_FORM_ENABLED=true` and redeploy the latest build.
 4. End-to-end test on `https://www.nattyfitnesstrainer.com/consultation` with a second email address: you land on the thank-you page, the calendar shows your name and email filled in, the request reaches the Gmail inbox with Reply set to the test address, and the confirmation from hello@ arrives with both links. Book a slot, confirm it lands on Google Calendar with a Meet link, then cancel it.
