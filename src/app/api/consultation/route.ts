@@ -289,7 +289,12 @@ export async function POST(request: Request): Promise<Response> {
     const { fullName, email, coachingInterest } = validation.normalized;
     after(async () => {
       await Promise.allSettled([
-        sendConsultationConfirmationEmail({ requestId, fullName, email }),
+        sendConsultationConfirmationEmail({
+          requestId,
+          fullName,
+          email,
+          coachingInterest,
+        }),
         logConsultationLead({
           requestId,
           submittedAt,

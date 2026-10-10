@@ -10,13 +10,13 @@ interface QuestionnaireLinkProps {
   readonly label: string;
 }
 
-/** Opens the Google Form in a new tab, with the visitor's email pre-filled when known. */
+/** Opens the Google Form in a new tab, with the visitor's email, name and format pre-filled when known. */
 export function QuestionnaireLink({
   questionnaire,
   label,
 }: QuestionnaireLinkProps) {
   const contact = useConsultationContact();
-  const href = buildQuestionnaireLink(questionnaire, contact?.email ?? null);
+  const href = buildQuestionnaireLink(questionnaire, contact);
 
   return (
     <a
