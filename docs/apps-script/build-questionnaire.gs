@@ -2,8 +2,17 @@
  * Natty Fitness Trainer: builds the client questionnaire as a Google Form.
  *
  * Generated from the Claude Doc "Client Questionnaire — Natty Fitness
- * Trainer (Draft v1)". Run it ONCE to create the form; after that, edit the
- * form in the Google Forms editor. The copy in the repo is for history.
+ * Trainer" (v2: one form for everyone, no separate men's/women's paths).
+ * Run it ONCE to create the form; after that, edit the form in the Google
+ * Forms editor. The copy in the repo is for history.
+ *
+ * It also sets up the private responses sheet with three extra tabs:
+ *   - Call prep: pick a lead's email to see their flags, the key answers
+ *     and every answer in one column. Formulas only, so nothing is copied
+ *     and the 6-month retention clean-up removes everything at once.
+ *   - Question stats: how often each question gets answered, so you can
+ *     cut what people skip.
+ *   - Changes: a log you fill in whenever you edit the form.
  *
  * HOW TO RUN
  *   1. Sign in to Google with the Gmail that holds your Cal.com calendar
@@ -14,13 +23,17 @@
  *      permissions (Forms, Sheets).
  *   4. Open the Execution log. It prints the form link, the editor link,
  *      the responses sheet and the three pre-fill keys. Send the block
- *      marked "SEND THIS TO CLAUDE" back to the chat.
+ *      marked "SEND THIS TO CLAUDE" back to the chat. (If it says the
+ *      sheet tabs couldn't be set up yet, run refreshResponseTabs a minute
+ *      later.)
  *   5. In the form editor, finish the two settings a script can't change:
  *      Responses > ⋮ > Get email notifications for new responses, and the
  *      theme (palette icon: logo header and colours).
  *
  * Running buildQuestionnaire again refuses to make a second form. To print
- * the links and keys again later, run logQuestionnaireLinks.
+ * the links and keys again later, run logQuestionnaireLinks. To rebuild the
+ * Call prep and Question stats tabs (say, after deleting and re-adding a
+ * question they use), run refreshResponseTabs.
  *
  * KEEP THE PRE-FILL WORKING
  *   - Never delete and recreate "Email", "Full name" or "Which coaching
@@ -28,6 +41,10 @@
  *   - The format answers must stay exactly In-person, Online, Hybrid and
  *     Not sure; the website fills them in by those words.
  *   - The reminder script finds the email column by the header "Email".
+ *   - Rewording any question is safe for Call prep: it follows the
+ *     questions by their internal IDs and sheet columns. Its flags do read
+ *     a few answer wordings ("None of these", "No", "Under 6 months"...),
+ *     so if you reword an answer option, ask Claude to check the flags.
  */
 
 const FORM_TITLE = "Client Questionnaire — Natty Fitness Trainer";
@@ -51,7 +68,7 @@ const NAME_TITLE = "Full name";
 const FORMAT_TITLE = "Which coaching format are you leaning toward?";
 const FORMAT_CHOICES = ["In-person", "Online", "Hybrid", "Not sure"];
 
-const PATH_INTRO =
+const PLAN_AROUND_INTRO =
   "These are optional. No judgment — they help me plan around things that " +
   "affect training, safety and progress. Skip anything you'd rather talk " +
   "about on the call.";
@@ -74,13 +91,33 @@ const GOALS = [
   "Stay strong as I get older",
 ];
 
-const REDS_QUESTION = {
-  type: "choice",
-  title:
-    "While training hard or dieting, have you noticed unusual fatigue, " +
-    "getting sick often, injuries that won't heal, or a drop in sex drive?",
-  choices: ["Yes", "No", "Prefer to discuss on the call"],
-};
+// One list for everyone instead of separate men's and women's sections:
+// each item changes how training is planned (see the questionnaire doc).
+const PLAN_AROUND_CHOICES = [
+  "Pregnant",
+  "Planning a pregnancy in the next 6 months",
+  "Gave birth in the last 12 months",
+  "Leaking urine or heaviness in the pelvis during exercise, coughing, " +
+    "jumping or running",
+  "Periods stopped or became irregular while training hard or dieting",
+  "Perimenopause or menopause",
+  "A hernia (groin or belly), repaired or not",
+  "Taking testosterone or another hormone therapy (not birth control)",
+  "Unusual fatigue, getting sick often, injuries that won't heal, or a " +
+    "drop in sex drive while training hard or dieting",
+  "None of these",
+  "Prefer to discuss on the call",
+];
+
+const MOVEMENTS = [
+  "Squat",
+  "Hip hinge (deadlift or kettlebell swing)",
+  "Lunge or split squat",
+  "Push-up",
+  "Overhead press",
+  "Row or pull-up",
+  "Running or jumping",
+];
 
 // City Sports Club (San Pablo) and YMCA (Oakland) are left out until their
 // outside-trainer policies are confirmed. Add them here when they are.
@@ -106,7 +143,8 @@ const EQUIPMENT = [
   "Full commercial gym",
 ];
 
-// Section 6 questions, shared by the four format variants.
+// Section 6 questions. Each one exists once, so the responses sheet has
+// one column per question and an edit happens in one place.
 const Q6 = {
   where: {
     type: "checkbox",
@@ -114,10 +152,12 @@ const Q6 = {
     choices: TRAINING_LOCATIONS,
     other: true,
     required: true,
+    flag: "whereInPerson",
   },
   city: {
     type: "text",
     title: "Which city or neighborhood? Nearest cross streets are enough.",
+    required: true,
   },
   access: {
     type: "paragraph",
@@ -125,10 +165,16 @@ const Q6 = {
       "Anything I should know about getting there (parking, building " +
       "check-in, pets)?",
   },
-  sessions: {
+  frequency: {
     type: "choice",
-    title: "How many in-person sessions a month would suit you?",
-    choices: ["2", "4", "Not sure"],
+    title: "How often would you like to train with me in person?",
+    choices: [
+      "Twice a month",
+      "Once a week",
+      "Twice a week",
+      "3 times a week",
+      "Not sure",
+    ],
   },
   ownWorkouts: {
     type: "choice",
@@ -140,12 +186,15 @@ const Q6 = {
       "Home with little or no equipment",
       "Outdoors",
       "A mix",
+      "Only in my sessions with you",
     ],
     required: true,
+    flag: "ownWorkouts",
   },
   equipment: {
     type: "checkbox",
     title: "What equipment can you use?",
+    help: "Include what's at home or at your gym. Skip it if you're not sure yet.",
     choices: EQUIPMENT,
   },
   weights: {
@@ -156,6 +205,7 @@ const Q6 = {
   filming: {
     type: "choice",
     title: "Could you film a set now and then so I can check your form?",
+    help: "Mostly for online and hybrid coaching.",
     choices: ["Yes", "Maybe", "I'd rather not"],
   },
   contact: {
@@ -176,14 +226,12 @@ const Q6 = {
   },
 };
 
-function withRequired_(question, required) {
-  return Object.assign({}, question, { required: required });
-}
-
 /**
  * The whole form, section by section. Section "about" is the form's first
  * page. A section's `next` is where it goes when it ends ("After section").
- * A `branch` maps each answer to the section it sends people to.
+ * A `branch` maps each answer to the section it sends people to. A `flag`
+ * names a question the Call prep tab reads (its item ID is saved, so
+ * rewording the question doesn't break it).
  */
 const SECTIONS = [
   {
@@ -196,14 +244,22 @@ const SECTIONS = [
         validation: "email",
         required: true,
         prefill: "email",
+        flag: "email",
       },
-      { type: "text", title: NAME_TITLE, required: true, prefill: "name" },
-      { type: "text", title: "What should I call you?" },
+      {
+        type: "text",
+        title: NAME_TITLE,
+        required: true,
+        prefill: "name",
+        flag: "name",
+      },
+      { type: "text", title: "What should I call you?", flag: "callMe" },
       {
         type: "list",
         title: "Age range",
         choices: ["18–29", "30–39", "40–49", "50–59", "60–69", "70+"],
         required: true,
+        flag: "age",
       },
     ],
   },
@@ -217,6 +273,7 @@ const SECTIONS = [
         choices: GOALS,
         other: true,
         required: true,
+        flag: "goal",
       },
       {
         type: "checkbox",
@@ -229,6 +286,7 @@ const SECTIONS = [
         title:
           'Picture three months from now. What would make you say "this worked"?',
         required: true,
+        flag: "worked",
       },
       { type: "paragraph", title: "Why is now the right time?" },
       {
@@ -247,6 +305,7 @@ const SECTIONS = [
         lowLabel: "Not at all",
         highLabel: "Extremely",
         required: true,
+        flag: "importance",
       },
       {
         type: "scale",
@@ -256,6 +315,7 @@ const SECTIONS = [
         high: 10,
         lowLabel: "Not at all",
         highLabel: "Extremely",
+        flag: "confidence",
       },
       {
         type: "checkbox",
@@ -281,6 +341,7 @@ const SECTIONS = [
           "Weekly check-ins and messaging",
           "Not sure yet",
         ],
+        flag: "support",
       },
     ],
   },
@@ -296,6 +357,7 @@ const SECTIONS = [
           "to talk) on 3 or more days a week?",
         choices: ["Yes", "No"],
         required: true,
+        flag: "active",
       },
       {
         type: "checkbox",
@@ -314,6 +376,7 @@ const SECTIONS = [
           "Prefer to discuss on the call",
         ],
         required: true,
+        flag: "conditions",
       },
       {
         type: "checkbox",
@@ -332,6 +395,7 @@ const SECTIONS = [
           "None of these",
         ],
         required: true,
+        flag: "symptoms",
       },
       {
         type: "choice",
@@ -340,10 +404,12 @@ const SECTIONS = [
           "pressure, blood sugar or blood clotting?",
         choices: ["Yes", "No", "Not sure", "Prefer to discuss on the call"],
         required: true,
+        flag: "medication",
       },
       {
         type: "text",
         title: "If yes, what is it for? (The type is enough.)",
+        flag: "medicationFor",
       },
       {
         type: "checkbox",
@@ -361,6 +427,7 @@ const SECTIONS = [
           "None",
         ],
         required: true,
+        flag: "injuries",
       },
       {
         type: "paragraph",
@@ -376,6 +443,7 @@ const SECTIONS = [
         help: 'Choose "Other" to add details.',
         choices: ["Yes", "No"],
         other: true,
+        flag: "limits",
       },
       {
         type: "choice",
@@ -383,6 +451,7 @@ const SECTIONS = [
           "In the past 12 months, have you had a hospital stay, surgery or a " +
           "new diagnosis?",
         choices: ["Yes", "No", "Prefer to discuss on the call"],
+        flag: "hospital",
       },
       {
         type: "paragraph",
@@ -390,25 +459,12 @@ const SECTIONS = [
           "Anything else about your health you'd like me to know? Only share " +
           "what you're comfortable with.",
       },
-      {
-        type: "choice",
-        title: "Which short question set fits you best?",
-        help: "It only decides the next section.",
-        choices: ["Men's", "Women's", "General (skip these questions)"],
-        branch: {
-          "Men's": "mens",
-          "Women's": "womens",
-          "General (skip these questions)": "general",
-        },
-        required: true,
-      },
     ],
   },
   {
-    key: "mens",
-    title: "Men's questions",
-    help: PATH_INTRO,
-    next: "background",
+    key: "planAround",
+    title: "A few things to plan around",
+    help: PLAN_AROUND_INTRO,
     items: [
       {
         type: "choice",
@@ -422,103 +478,20 @@ const SECTIONS = [
         ],
       },
       {
-        type: "choice",
-        title: "Have you ever had a hernia (groin or belly)?",
-        choices: ["Yes, repaired", "Yes, not repaired", "No", "Not sure"],
+        type: "checkbox",
+        title: "Do any of these apply to you right now?",
+        help: "Tick anything that applies, or skip it.",
+        choices: PLAN_AROUND_CHOICES,
+        flag: "planAround",
       },
-      {
-        type: "choice",
-        title: "Are you currently using testosterone or any other hormones?",
-        choices: [
-          "Yes, prescribed",
-          "Yes, not prescribed",
-          "No",
-          "Prefer to discuss on the call",
-        ],
-      },
-      REDS_QUESTION,
-    ],
-  },
-  {
-    key: "womens",
-    title: "Women's questions",
-    help: PATH_INTRO,
-    next: "background",
-    items: [
-      {
-        type: "choice",
-        title: "Are you pregnant, or planning to be in the next 6 months?",
-        choices: [
-          "Pregnant",
-          "Planning",
-          "No",
-          "Prefer to discuss on the call",
-        ],
-      },
-      {
-        type: "choice",
-        title: "Have you given birth in the last 12 months?",
-        choices: ["Yes", "No", "Prefer to discuss on the call"],
-      },
-      {
-        type: "text",
-        title:
-          "If pregnant or postpartum: how many weeks along, or how long since " +
-          "the birth? Has your doctor or midwife OK'd exercise?",
-      },
-      {
-        type: "choice",
-        title:
-          "During exercise, coughing, sneezing, jumping or running, do you " +
-          "ever leak urine or feel heaviness in your pelvis?",
-        choices: [
-          "Never",
-          "Sometimes",
-          "Often",
-          "Prefer to discuss on the call",
-        ],
-      },
-      {
-        type: "choice",
-        title: "How does your menstrual cycle affect your training?",
-        choices: [
-          "It doesn't",
-          "Sometimes (energy, cramps, sleep)",
-          "Often",
-          "I don't have periods right now (pregnancy, menopause, birth " +
-            "control or other)",
-          "My periods stopped or became irregular while training hard or " +
-            "dieting",
-          "Prefer not to say",
-        ],
-      },
-      {
-        type: "choice",
-        title: "Which best describes you?",
-        choices: [
-          "Before menopause",
-          "Perimenopause (cycle changes, hot flashes, sleep changes)",
-          "After menopause",
-          "Not sure",
-          "Prefer not to say",
-        ],
-      },
-    ],
-  },
-  {
-    key: "general",
-    title: "General questions",
-    help: PATH_INTRO,
-    next: "background",
-    items: [
       {
         type: "paragraph",
-        title:
-          "Is there anything about your body, hormones or health — for " +
-          "example pregnancy, a recent birth, menopause, hormone therapy or " +
-          "pelvic floor symptoms — that you'd like me to plan around?",
+        title: "Anything I should know about what you ticked?",
+        help:
+          "For example: how many weeks pregnant or since the birth, whether " +
+          "your doctor or midwife has OK'd exercise, whether a hernia was " +
+          "repaired, or whether a hormone therapy is prescribed.",
       },
-      REDS_QUESTION,
     ],
   },
   {
@@ -536,6 +509,7 @@ const SECTIONS = [
           "5+ years",
         ],
         required: true,
+        flag: "experience",
       },
       {
         type: "checkbox",
@@ -559,6 +533,7 @@ const SECTIONS = [
         title: "In a typical week, how many days do you strength train?",
         choices: ["0", "1", "2", "3", "4+"],
         required: true,
+        flag: "strengthDays",
       },
       {
         type: "list",
@@ -571,25 +546,18 @@ const SECTIONS = [
           "10,000+",
         ],
       },
+      // Two checkbox questions instead of a grid: grids are hard to use on a
+      // phone, and most people open this link on one.
       {
-        type: "grid",
-        title: "How comfortable are you with these movements?",
-        rows: [
-          "Squat",
-          "Hip hinge (deadlift or kettlebell swing)",
-          "Lunge or split squat",
-          "Push-up",
-          "Overhead press",
-          "Row or pull-up",
-          "Running or jumping",
-        ],
-        columns: [
-          "Never tried",
-          "Still learning",
-          "Comfortable",
-          "Confident with heavy weight",
-          "Painful, I avoid it",
-        ],
+        type: "checkbox",
+        title: "Which of these can you do comfortably, with good form?",
+        choices: MOVEMENTS.concat(["None of these yet"]),
+      },
+      {
+        type: "checkbox",
+        title: "Do any of these cause pain, so you avoid them?",
+        choices: MOVEMENTS.concat(["None"]),
+        flag: "painful",
       },
       {
         type: "paragraph",
@@ -604,65 +572,33 @@ const SECTIONS = [
         choices: FORMAT_CHOICES,
         branch: {
           "In-person": "inPerson",
-          Online: "online",
-          Hybrid: "hybrid",
+          Online: "setup",
+          Hybrid: "inPerson",
           "Not sure": "notSure",
         },
         required: true,
         prefill: "format",
+        flag: "format",
       },
     ],
   },
+  // In-person and Hybrid answer this, Not sure answers the next one, and
+  // everyone (Online goes straight there) ends with "Your training setup".
   {
     key: "inPerson",
-    title: "Training setup: in person",
-    next: "schedule",
-    items: [
-      Q6.where,
-      withRequired_(Q6.city, true),
-      Q6.access,
-      withRequired_(Q6.equipment, false),
-      Q6.weights,
-    ],
-  },
-  {
-    key: "online",
-    title: "Training setup: online",
-    next: "schedule",
-    items: [
-      Q6.ownWorkouts,
-      withRequired_(Q6.equipment, true),
-      Q6.weights,
-      Q6.filming,
-      Q6.contact,
-    ],
-  },
-  {
-    key: "hybrid",
-    title: "Training setup: hybrid",
-    next: "schedule",
-    items: [
-      Q6.where,
-      withRequired_(Q6.city, true),
-      Q6.access,
-      Q6.sessions,
-      Q6.ownWorkouts,
-      withRequired_(Q6.equipment, true),
-      Q6.weights,
-      Q6.filming,
-      Q6.contact,
-    ],
+    title: "Training with me in person",
+    next: "setup",
+    items: [Q6.where, Q6.city, Q6.access, Q6.frequency],
   },
   {
     key: "notSure",
-    title: "Training setup: not sure yet",
-    next: "schedule",
-    items: [
-      withRequired_(Q6.city, false),
-      withRequired_(Q6.equipment, true),
-      Q6.weights,
-      Q6.unsure,
-    ],
+    title: "Still deciding",
+    items: [Q6.unsure],
+  },
+  {
+    key: "setup",
+    title: "Your training setup",
+    items: [Q6.ownWorkouts, Q6.equipment, Q6.weights, Q6.filming, Q6.contact],
   },
   {
     key: "schedule",
@@ -673,12 +609,14 @@ const SECTIONS = [
         title: "How many days a week can you realistically train?",
         choices: ["1–2", "3", "4", "5+"],
         required: true,
+        flag: "days",
       },
       {
         type: "choice",
         title: "How long can a session be?",
         choices: ["30 min", "45 min", "60 min", "75+ min"],
         required: true,
+        flag: "length",
       },
       {
         type: "checkbox",
@@ -692,6 +630,7 @@ const SECTIONS = [
           "Weekends",
         ],
         required: true,
+        flag: "times",
       },
       {
         type: "choice",
@@ -707,6 +646,7 @@ const SECTIONS = [
         type: "choice",
         title: "On average, how many hours do you sleep a night?",
         choices: ["Under 5", "5–6", "6–7", "7–8", "8+"],
+        flag: "sleep",
       },
       {
         type: "scale",
@@ -761,6 +701,7 @@ const SECTIONS = [
           "Not now, take me to the end": "wrapUp",
         },
         required: true,
+        flag: "selfCheck",
       },
     ],
   },
@@ -926,6 +867,11 @@ const SECTIONS = [
         other: true,
       },
       {
+        type: "paragraph",
+        title: "Was anything in this form confusing, missing or too personal?",
+        help: "Optional. It helps me make the form better.",
+      },
+      {
         type: "checkbox",
         title:
           "I understand this form isn't medical advice, and I'll let Nathnael " +
@@ -966,6 +912,7 @@ function buildQuestionnaire() {
 
   const pages = {};
   const branching = [];
+  const flagItems = {};
 
   SECTIONS.forEach(function (section, index) {
     if (index > 0) {
@@ -979,6 +926,9 @@ function buildQuestionnaire() {
       const item = addItem_(form, spec);
       if (spec.branch) {
         branching.push({ item: item, spec: spec });
+      }
+      if (spec.flag) {
+        flagItems[spec.flag] = item.getId();
       }
     });
   });
@@ -1010,6 +960,17 @@ function buildQuestionnaire() {
   form.setDestination(FormApp.DestinationType.SPREADSHEET, spreadsheet.getId());
 
   props.setProperty("FORM_ID", form.getId());
+  props.setProperty("FLAG_ITEMS", JSON.stringify(flagItems));
+
+  try {
+    setUpResponseTabs_(form, { firstRun: true });
+  } catch (error) {
+    console.log(
+      "The form is built, but the sheet tabs couldn't be set up yet (" +
+        error.message +
+        "). Wait a minute, then run refreshResponseTabs.",
+    );
+  }
   logQuestionnaireLinks();
 }
 
@@ -1111,6 +1072,605 @@ function addItem_(form, spec) {
 }
 
 // ---------------------------------------------------------------------------
+// Responses sheet tabs: Call prep, Question stats, Changes
+// ---------------------------------------------------------------------------
+
+const CALL_PREP_TAB = "Call prep";
+const STATS_TAB = "Question stats";
+const CHANGES_TAB = "Changes";
+/** Question rows on the stats tab: room to add questions later. */
+const STATS_ROWS = 150;
+
+/** Rebuilds the Call prep and Question stats tabs. Safe to run any time. */
+function refreshResponseTabs() {
+  const formId = PropertiesService.getScriptProperties().getProperty("FORM_ID");
+  if (!formId) {
+    throw new Error("Run buildQuestionnaire first.");
+  }
+  setUpResponseTabs_(FormApp.openById(formId), { firstRun: false });
+  console.log("Call prep and Question stats are up to date.");
+}
+
+function setUpResponseTabs_(form, options) {
+  const spreadsheet = SpreadsheetApp.openById(form.getDestinationId());
+  const responses = waitForResponsesTab_(form, spreadsheet);
+  const columns = flagColumns_(form, responses);
+  const ref = "'" + responses.getName().replace(/'/g, "''") + "'!";
+
+  buildCallPrepTab_(spreadsheet, responses, ref, columns);
+  buildStatsTab_(spreadsheet, ref);
+  if (!spreadsheet.getSheetByName(CHANGES_TAB)) {
+    buildChangesTab_(spreadsheet);
+  }
+
+  if (options.firstRun) {
+    // A new spreadsheet starts with an empty "Sheet1"; drop it if unused.
+    spreadsheet.getSheets().forEach(function (sheet) {
+      const ours = [CALL_PREP_TAB, STATS_TAB, CHANGES_TAB];
+      if (
+        sheet.getSheetId() !== responses.getSheetId() &&
+        ours.indexOf(sheet.getName()) < 0 &&
+        sheet.getLastRow() === 0
+      ) {
+        spreadsheet.deleteSheet(sheet);
+      }
+    });
+  }
+}
+
+/** The tab Google Forms writes answers to. It can take a moment to appear. */
+function waitForResponsesTab_(form, spreadsheet) {
+  const formKey = form.getEditUrl().replace(/\/edit.*$/, "");
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const found = spreadsheet.getSheets().find(function (sheet) {
+      const linked = sheet.getFormUrl();
+      return (
+        linked && linked.replace(/\/viewform.*$|\/edit.*$/, "") === formKey
+      );
+    });
+    if (found && found.getLastColumn() > 1) {
+      return found;
+    }
+    SpreadsheetApp.flush();
+    Utilities.sleep(1500);
+  }
+  throw new Error("the responses tab isn't ready");
+}
+
+/**
+ * Which sheet column (A, B, ...) holds each flagged question. Found by the
+ * question's current title in the header row, so rewording a question in
+ * the editor (which renames its column) keeps working.
+ */
+function flagColumns_(form, responses) {
+  const ids = JSON.parse(
+    PropertiesService.getScriptProperties().getProperty("FLAG_ITEMS") || "{}",
+  );
+  const header = responses
+    .getRange(1, 1, 1, responses.getLastColumn())
+    .getValues()[0]
+    .map(function (cell) {
+      return String(cell).trim().toLowerCase();
+    });
+  const columns = {};
+  Object.keys(ids).forEach(function (key) {
+    const item = form.getItemById(ids[key]);
+    if (!item) {
+      return; // Deleted from the form: its flags are skipped.
+    }
+    const index = header.indexOf(item.getTitle().trim().toLowerCase());
+    if (index >= 0) {
+      columns[key] = columnLetter_(index + 1);
+    }
+  });
+  return columns;
+}
+
+function columnLetter_(number) {
+  let letters = "";
+  while (number > 0) {
+    const remainder = (number - 1) % 26;
+    letters = String.fromCharCode(65 + remainder) + letters;
+    number = Math.floor((number - 1) / 26);
+  }
+  return letters;
+}
+
+/**
+ * The Call prep flags, written as Sheets formulas. `v(key)` is that
+ * question's answer for the chosen lead. They follow the decision rules in
+ * the questionnaire doc (ACSM screening steps): prompts, not diagnoses.
+ */
+const CALL_PREP_FLAGS = [
+  {
+    needs: ["symptoms"],
+    formula: function (v) {
+      return (
+        "IF(AND(" +
+        v("symptoms") +
+        '<>"",' +
+        v("symptoms") +
+        '<>"None of these"),"• Doctor first: a symptom is ticked ("&' +
+        v("symptoms") +
+        '&"). No exercise until a doctor clears them.","")'
+      );
+    },
+  },
+  {
+    needs: ["conditions", "active"],
+    formula: function (v) {
+      return (
+        "IF(REGEXMATCH(" +
+        v("conditions") +
+        '&"","heart condition|Stroke|Diabetes|Kidney disease"),IF(' +
+        v("active") +
+        '="No","• Doctor\'s OK before starting: known condition and not ' +
+        'active now. Then light to moderate, building up.","• Moderate is ' +
+        "fine. Doctor's OK before vigorous work: known condition, active " +
+        'now."),"")'
+      );
+    },
+  },
+  {
+    needs: ["conditions"],
+    formula: function (v) {
+      // Lists only the conditions that aren't clearance triggers.
+      const c = v("conditions") + '&""';
+      const named = function (pattern, label) {
+        return "IF(REGEXMATCH(" + c + ',"' + pattern + '"),"' + label + '","")';
+      };
+      return (
+        "IF(REGEXMATCH(" +
+        c +
+        ',"High blood pressure|Asthma|Osteoporosis"),"• Plan around (not a ' +
+        'clearance trigger on its own): "&TEXTJOIN(", ",TRUE,' +
+        named("High blood pressure", "high blood pressure") +
+        "," +
+        named("Asthma", "a lung condition") +
+        "," +
+        named("Osteoporosis", "osteoporosis or low bone density") +
+        '),"")'
+      );
+    },
+  },
+  {
+    needs: ["conditions", "medication", "hospital"],
+    formula: function (v) {
+      return (
+        "IF(REGEXMATCH(" +
+        v("conditions") +
+        '&" "&' +
+        v("medication") +
+        '&" "&' +
+        v("hospital") +
+        ',"Not sure|Prefer to discuss"),"• Ask on the call before planning ' +
+        'intensity: they chose Not sure or Prefer to discuss.","")'
+      );
+    },
+  },
+  {
+    needs: ["medication", "medicationFor"],
+    formula: function (v) {
+      return (
+        "IF(" +
+        v("medication") +
+        '="Yes","• Medication that affects heart ' +
+        'rate, blood pressure, blood sugar or clotting"&IF(' +
+        v("medicationFor") +
+        '<>""," ("&' +
+        v("medicationFor") +
+        '&")","")&": coach by effort (RPE), not heart rate.","")'
+      );
+    },
+  },
+  {
+    needs: ["hospital"],
+    formula: function (v) {
+      return (
+        "IF(" +
+        v("hospital") +
+        '="Yes","• Hospital stay, surgery or new ' +
+        'diagnosis in the last 12 months: ask about it.","")'
+      );
+    },
+  },
+  {
+    needs: ["limits"],
+    formula: function (v) {
+      return (
+        "IF(AND(" +
+        v("limits") +
+        '<>"",' +
+        v("limits") +
+        '<>"No"),"• A doctor or PT limited some activity: "&' +
+        v("limits") +
+        ',"")'
+      );
+    },
+  },
+  {
+    needs: ["injuries"],
+    formula: function (v) {
+      return (
+        "IF(AND(" +
+        v("injuries") +
+        '<>"",' +
+        v("injuries") +
+        '<>"None"),"• Pain, injury or surgery in the last 2 years: "&' +
+        v("injuries") +
+        ',"")'
+      );
+    },
+  },
+  {
+    needs: ["painful"],
+    formula: function (v) {
+      return (
+        "IF(AND(" +
+        v("painful") +
+        '<>"",' +
+        v("painful") +
+        '<>"None"),"• Painful movements, check these first: "&' +
+        v("painful") +
+        ',"")'
+      );
+    },
+  },
+  {
+    needs: ["planAround"],
+    formula: function (v) {
+      return (
+        "IF(AND(" +
+        v("planAround") +
+        '<>"",' +
+        v("planAround") +
+        '<>"None of these"),"• Plan around: "&' +
+        v("planAround") +
+        ',"")'
+      );
+    },
+  },
+  {
+    needs: ["experience", "strengthDays"],
+    formula: function (v) {
+      return (
+        "IF(OR(" +
+        v("experience") +
+        '="Never consistently",' +
+        v("experience") +
+        '="Under 6 months",' +
+        v("strengthDays") +
+        '&""="0",' +
+        v("strengthDays") +
+        '&""="1"),"• Treat as a beginner: teach the patterns before ' +
+        'loading them.","")'
+      );
+    },
+  },
+  {
+    needs: ["confidence"],
+    formula: function (v) {
+      return (
+        "IF(AND(" +
+        v("confidence") +
+        '&""<>"",N(' +
+        v("confidence") +
+        ')<7),"• Confidence "&' +
+        v("confidence") +
+        '&"/10: start with fewer days a week.","")'
+      );
+    },
+  },
+  {
+    needs: ["sleep"],
+    formula: function (v) {
+      return (
+        "IF(OR(" +
+        v("sleep") +
+        '="Under 5",' +
+        v("sleep") +
+        '="5–6",' +
+        v("sleep") +
+        '="6–7"),"• Sleeps "&' +
+        v("sleep") +
+        '&" hours: sleep may be the easiest first habit.","")'
+      );
+    },
+  },
+  {
+    needs: ["selfCheck"],
+    formula: function (v) {
+      return (
+        "IF(LEFT(" +
+        v("selfCheck") +
+        ',3)="Yes","• Did the self-check: ' +
+        'the numbers are under All answers.","")'
+      );
+    },
+  },
+];
+
+/** The "At a glance" rows: a label and a formula built from answers. */
+const CALL_PREP_GLANCE = [
+  {
+    label: "Name",
+    needs: ["name"],
+    formula: function (v) {
+      return (
+        v("name") +
+        "&IF(" +
+        v("callMe") +
+        '<>""," (call them "&' +
+        v("callMe") +
+        '&")","")'
+      );
+    },
+    optional: ["callMe"],
+  },
+  { label: "Age range", needs: ["age"], formula: (v) => v("age") },
+  { label: "Main goal", needs: ["goal"], formula: (v) => v("goal") },
+  {
+    label: "Three months from now",
+    needs: ["worked"],
+    formula: (v) => v("worked"),
+  },
+  {
+    label: "Importance · confidence",
+    needs: ["importance", "confidence"],
+    formula: function (v) {
+      return (
+        v("importance") +
+        '&"/10 · "&IF(' +
+        v("confidence") +
+        '&""="","–",' +
+        v("confidence") +
+        '&"/10")'
+      );
+    },
+  },
+  {
+    label: "Support they want",
+    needs: ["support"],
+    formula: function (v) {
+      const s = v("support");
+      return (
+        s +
+        "&IF(" +
+        s +
+        '="A solid plan and a monthly check-in"," (≈ ' +
+        'Essentials)",IF(' +
+        s +
+        '="Check-ins every couple of weeks"," (≈ ' +
+        'Standard)",IF(' +
+        s +
+        '="Weekly check-ins and messaging"," (≈ ' +
+        'Premium)","")))'
+      );
+    },
+  },
+  { label: "Format", needs: ["format"], formula: (v) => v("format") },
+  {
+    label: "Schedule",
+    needs: ["days", "length", "times"],
+    formula: function (v) {
+      return (
+        v("days") + '&" days a week · "&' + v("length") + '&" · "&' + v("times")
+      );
+    },
+  },
+  {
+    label: "Where they'll train",
+    needs: ["ownWorkouts"],
+    optional: ["whereInPerson"],
+    formula: function (v) {
+      return (
+        'TEXTJOIN(" · ",TRUE,IF(' +
+        v("whereInPerson") +
+        '<>"","With you: "&' +
+        v("whereInPerson") +
+        ',""),IF(' +
+        v("ownWorkouts") +
+        '<>"","On their own: "&' +
+        v("ownWorkouts") +
+        ',""))'
+      );
+    },
+  },
+];
+
+function buildCallPrepTab_(spreadsheet, responses, ref, columns) {
+  const sheet = resetTab_(spreadsheet, CALL_PREP_TAB, 1);
+  const row = "$B$3";
+  const v = function (key) {
+    // A question that's gone from the form reads as blank.
+    return columns[key]
+      ? "INDEX(" + ref + columns[key] + ":" + columns[key] + "," + row + ")"
+      : '""';
+  };
+  const has = function (keys) {
+    return keys.every(function (key) {
+      return Boolean(columns[key]);
+    });
+  };
+  const ready = function (body) {
+    return "=IF(ISNUMBER(" + row + "),IFERROR(" + body + ',""),"")';
+  };
+
+  const email = columns.email || "B";
+  const rows = [
+    ["Call prep", ""],
+    ["Email", ""],
+    [
+      "Response row",
+      '=IF($B$2="","",IFERROR(MAX(FILTER(ROW(' +
+        ref +
+        email +
+        ":" +
+        email +
+        "),LOWER(TRIM(" +
+        ref +
+        email +
+        ":" +
+        email +
+        '))=LOWER(TRIM($B$2)))),"Not found"))',
+    ],
+    [
+      "Submitted",
+      "=IF(ISNUMBER(" + row + "),INDEX(" + ref + "A:A," + row + '),"")',
+    ],
+    ["", ""],
+    [
+      "Flags",
+      "Prompts from your screening rules, not diagnoses. Blank means " +
+        "nothing to flag.",
+    ],
+  ];
+
+  const flags = CALL_PREP_FLAGS.filter(function (flag) {
+    return has(flag.needs);
+  }).map(function (flag) {
+    return flag.formula(v);
+  });
+  rows.push([
+    "",
+    "=IF(ISNUMBER(" +
+      row +
+      "),IFERROR(TEXTJOIN(CHAR(10),TRUE," +
+      flags.join(",") +
+      '),"A flag formula failed. Send Claude a screenshot."),"")',
+  ]);
+  rows.push(["", ""]);
+  rows.push(["At a glance", ""]);
+  CALL_PREP_GLANCE.forEach(function (line) {
+    rows.push([
+      line.label,
+      has(line.needs) ? ready(line.formula(v)) : "(question not found)",
+    ]);
+  });
+  rows.push(["", ""]);
+  rows.push(["All answers", ""]);
+  // The chosen response's whole row (as wide as the sheet), as a column.
+  const answers =
+    "TRANSPOSE(OFFSET(" +
+    ref +
+    "$A$1," +
+    row +
+    "-1,0,1,COLUMNS(" +
+    ref +
+    "$1:$1)))";
+  const questions = "TRANSPOSE(" + ref + "$1:$1)";
+  rows.push([
+    "=IF(ISNUMBER(" +
+      row +
+      "),IFERROR(FILTER({" +
+      questions +
+      "," +
+      answers +
+      "}," +
+      answers +
+      '<>"",' +
+      questions +
+      '<>"Timestamp"),""),"")',
+    "",
+  ]);
+
+  sheet.getRange(1, 1, rows.length, 2).setValues(rows);
+
+  // Email picker: the responses' email column, newest answers win.
+  sheet
+    .getRange("B2")
+    .setDataValidation(
+      SpreadsheetApp.newDataValidation()
+        .requireValueInRange(responses.getRange(email + "2:" + email), true)
+        .setAllowInvalid(true)
+        .build(),
+    )
+    .setBackground("#fff8e1");
+  sheet.getRange("C2").setValue("← pick or paste a lead's email");
+  sheet.getRange("A1").setFontSize(14).setFontWeight("bold");
+  sheet.getRange("A3:B3").setFontColor("#888888");
+  sheet.getRange("B4").setNumberFormat("mmm d, yyyy h:mm am/pm");
+  ["A6", "A9", "A" + (rows.length - 1)].forEach(function (cell) {
+    sheet.getRange(cell).setFontWeight("bold");
+  });
+  sheet.getRange("B6").setFontColor("#888888").setFontStyle("italic");
+  sheet.setColumnWidth(1, 300);
+  sheet.setColumnWidth(2, 560);
+  sheet
+    .getRange(1, 1, rows.length + 120, 2)
+    .setWrap(true)
+    .setVerticalAlignment("top");
+}
+
+function buildStatsTab_(spreadsheet, ref) {
+  const sheet = resetTab_(spreadsheet, STATS_TAB, 2);
+  // Open-ended ranges (A2:A, whole rows) so the formulas keep up as the
+  // responses sheet grows.
+  const responseCount = "COUNTA(" + ref + "$A$2:$A)";
+  const rows = [["Question", "Answered", "Share of responses"]];
+  for (let r = 2; r <= STATS_ROWS + 1; r++) {
+    // Row r shows sheet column r: column A is the timestamp, so row 2
+    // shows column B, the first question.
+    const answeredInColumn =
+      "COUNTA(OFFSET(" +
+      ref +
+      "$A$1,1," +
+      (r - 1) +
+      ",MAX(1,ROWS(" +
+      ref +
+      "$A:$A)-1),1))";
+    rows.push([
+      "=IFERROR(INDEX(" + ref + "$1:$1,1," + r + '),"")',
+      "=IF(A" + r + '="","",' + answeredInColumn + ")",
+      "=IF(A" + r + '="","",B' + r + "/MAX(1," + responseCount + "))",
+    ]);
+  }
+  sheet.getRange(1, 1, rows.length, 3).setValues(rows);
+  sheet.getRange("E1").setValue("Responses");
+  sheet.getRange("F1").setValue("=" + responseCount);
+  sheet.getRange("A1:F1").setFontWeight("bold");
+  sheet.getRange("C2:C" + (STATS_ROWS + 1)).setNumberFormat("0%");
+  sheet.setFrozenRows(1);
+  sheet.setColumnWidth(1, 480);
+  sheet.getRange("A2:A" + (STATS_ROWS + 1)).setWrap(true);
+}
+
+function buildChangesTab_(spreadsheet) {
+  const sheet = spreadsheet.insertSheet(
+    CHANGES_TAB,
+    Math.min(3, spreadsheet.getNumSheets()),
+  );
+  sheet.getRange(1, 1, 2, 3).setValues([
+    ["Date", "What changed", "Why"],
+    [
+      new Date(),
+      "Built the form from the questionnaire doc (v2: one form for " +
+        "everyone, one optional 'plan around' section, movement questions " +
+        "as checkboxes, three setup sections, a feedback question).",
+      "First version",
+    ],
+  ]);
+  sheet.getRange("A1:C1").setFontWeight("bold");
+  sheet.getRange("A2:A").setNumberFormat("mmm d, yyyy");
+  sheet.setFrozenRows(1);
+  sheet.setColumnWidth(2, 520);
+  sheet.setColumnWidth(3, 260);
+  sheet.getRange("B:C").setWrap(true);
+}
+
+/** An empty tab with this name at this position, replacing any old one. */
+function resetTab_(spreadsheet, name, position) {
+  const existing = spreadsheet.getSheetByName(name);
+  if (existing) {
+    spreadsheet.deleteSheet(existing);
+  }
+  return spreadsheet.insertSheet(
+    name,
+    Math.min(position, spreadsheet.getNumSheets()),
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Links and pre-fill keys (safe to run any time)
 // ---------------------------------------------------------------------------
 
@@ -1156,6 +1716,7 @@ function logQuestionnaireLinks() {
       "===== FOR YOU ONLY =====",
       "Edit the form: " + form.getEditUrl(),
       "Responses sheet (keep private): " + responsesSheet,
+      "  Tabs: answers, Call prep (pick an email), Question stats, Changes.",
     ].join("\n"),
   );
 }
