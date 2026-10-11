@@ -31,6 +31,19 @@ export const primaryGoalOptions = [
 
 export type PrimaryGoalValue = (typeof primaryGoalOptions)[number]["value"];
 
+/**
+ * The questionnaire's coaching-format answers (question 5.7), by the
+ * website's coaching-interest value. They must match the form's choices
+ * exactly, or the pre-fill silently does nothing.
+ */
+export const questionnaireFormatAnswers: Record<CoachingInterestValue, string> =
+  {
+    "in-person": "In-person",
+    online: "Online",
+    hybrid: "Hybrid",
+    "not-sure": "Not sure",
+  };
+
 export function getCoachingInterestLabel(value: CoachingInterestValue): string {
   return (
     coachingInterestOptions.find((option) => option.value === value)?.label ??
@@ -53,8 +66,17 @@ export function getPrimaryGoalLabel(value: PrimaryGoalValue): string {
 export interface ConsultationQuestionnaireLink {
   /** The form's ".../viewform" link. */
   readonly formUrl: string;
-  /** The Email question's pre-fill key, e.g. "entry.123456789". */
-  readonly emailEntryId: string;
+  /**
+   * Pre-fill keys ("entry.123456789") of the three questions the site fills
+   * in: Email (1.1), Full name (1.2) and the coaching format (5.7).
+   * docs/apps-script/build-questionnaire.gs prints them. They survive edits
+   * in the Forms editor, but not deleting and recreating those questions.
+   */
+  readonly entryIds: {
+    readonly email: string;
+    readonly name: string;
+    readonly format: string;
+  };
 }
 
 export interface ConsultationFollowUpLinks {
@@ -72,7 +94,7 @@ export interface ConsultationFollowUpLinks {
  */
 export const QUESTIONNAIRE_PLACEHOLDER: ConsultationQuestionnaireLink = {
   formUrl: "https://docs.google.com/forms/d/e/REPLACE-WITH-FORM-ID/viewform",
-  emailEntryId: "entry.0",
+  entryIds: { email: "entry.0", name: "entry.1", format: "entry.2" },
 };
 
 export const consultationFollowUpLinks: ConsultationFollowUpLinks = {
@@ -141,7 +163,7 @@ export const consultationThankYouContent = {
   questionnaire: {
     heading: "Before your call: the questionnaire",
     intro:
-      "A short set of questions about your training, goals and readiness to exercise, so the call can focus on you. You can book your call first.",
+      "About 10 minutes of questions about your goals, training, health and schedule, so the call can focus on you. You can book your call first.",
     cta: "Start the questionnaire",
   },
 } as const;
@@ -162,7 +184,7 @@ export const consultationConfirmationEmailContent = {
     linkLabel: "Pick a time",
   },
   questionnaire: {
-    text: "Fill out the questionnaire so our call can focus on you. You can book your call first.",
+    text: "Fill out the questionnaire (about 10 minutes) so our call can focus on you. You can book your call first.",
     linkLabel: "Start the questionnaire",
   },
   questionsWithPhone: (phone: string) =>

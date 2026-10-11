@@ -5,6 +5,7 @@ import {
   consultationFollowUpLinks,
   getCoachingInterestLabel,
   getPrimaryGoalLabel,
+  type CoachingInterestValue,
 } from "@/content/consultation";
 import { trainer } from "@/content/trainer";
 import { buildBookingLink, buildQuestionnaireLink } from "./links";
@@ -156,6 +157,7 @@ export interface SendConsultationConfirmationParams {
   readonly requestId: string;
   readonly fullName: string;
   readonly email: string;
+  readonly coachingInterest: CoachingInterestValue;
 }
 
 /** Letters (including common accented ones), apostrophes and hyphens only. */
@@ -202,7 +204,11 @@ function buildConfirmationSections(
     sections.push({
       text: confirmationCopy.questionnaire.text,
       linkLabel: confirmationCopy.questionnaire.linkLabel,
-      href: buildQuestionnaireLink(questionnaire, params.email),
+      href: buildQuestionnaireLink(questionnaire, {
+        fullName: params.fullName,
+        email: params.email,
+        coachingInterest: params.coachingInterest,
+      }),
     });
   }
 

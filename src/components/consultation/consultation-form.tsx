@@ -208,6 +208,7 @@ export function ConsultationForm({
           saveConsultationContact({
             fullName: validation.normalized.fullName,
             email: validation.normalized.email,
+            coachingInterest: validation.normalized.coachingInterest,
           });
         }
         setStatusMessage("Request sent — redirecting…");

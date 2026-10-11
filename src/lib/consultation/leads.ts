@@ -1,7 +1,9 @@
 // Server-only: reads LEADS_SCRIPT_URL and LEADS_SCRIPT_SECRET. Never import
 // this file from a "use client" component — only from the API route.
-import { getCoachingInterestLabel } from "@/content/consultation";
-import type { CoachingInterestValue } from "@/content/consultation";
+import {
+  questionnaireFormatAnswers,
+  type CoachingInterestValue,
+} from "@/content/consultation";
 
 const LOG_TIMEOUT_MS = 8000;
 
@@ -17,7 +19,7 @@ export interface LogConsultationLeadParams {
 /**
  * Adds one row to the Leads tab through Nathnael's Google Apps Script web
  * app (docs/apps-script/consultation-leads.gs). Sends only the name,
- * email, coaching interest, date and request ID: never the goals text,
+ * email, coaching format, date and request ID: never the goals text,
  * phone, area or anything health-related. Best effort: returns false on
  * any failure, logs nothing, and never affects the visitor's response.
  */
@@ -46,7 +48,9 @@ export async function logConsultationLead(
         submittedAt: params.submittedAt,
         name: params.fullName,
         email: params.email,
-        coachingInterest: getCoachingInterestLabel(params.coachingInterest),
+        // The questionnaire's wording (In-person, Online, Hybrid, Not sure),
+        // so the reminder script can pre-fill the format question with it.
+        coachingInterest: questionnaireFormatAnswers[params.coachingInterest],
       }),
       redirect: "follow",
       signal: controller.signal,
