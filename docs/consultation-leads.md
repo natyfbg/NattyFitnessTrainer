@@ -150,7 +150,9 @@ Current values: `bookingUrl` is the live Cal.com event. `questionnaire` is `QUES
 
 ## The questionnaire form
 
-The full question list is in the Claude Doc "Client Questionnaire — Natty Fitness Trainer (Draft v1)". [`docs/apps-script/build-questionnaire.gs`](apps-script/build-questionnaire.gs) generates the Google Form from it in one run (with branching at 3.11, 5.7 and 7.11, and a new private "Questionnaire responses (private)" sheet); after that, the form is edited in the Google Forms editor and the script is kept for history.
+The full question list is in the Claude Doc "Client Questionnaire — Natty Fitness Trainer" (v2 since 2026-10-11: one form for everyone, with an optional "things to plan around" section instead of separate men's, women's and general paths). [`docs/apps-script/build-questionnaire.gs`](apps-script/build-questionnaire.gs) generates the Google Form from it in one run, with branching at 5.7 (format) and 7.11 (self-check) and a new private "Questionnaire responses (private)" sheet. After that, the form is edited in the Google Forms editor and the script is kept for history.
+
+The script also adds three formula tabs to that private sheet: **Call prep** (pick a lead's email to see screening flags, key answers and every answer), **Question stats** (how often each question is answered) and **Changes** (a log of form edits). They only display what's already in the sheet, so nothing health-related is copied anywhere and the 6-month retention clean-up covers them. `refreshResponseTabs` rebuilds the first two.
 
 Keeping the pre-fill working:
 
