@@ -83,7 +83,12 @@ The Cloudflare **build command** (`npm run check`) only performs formatting veri
 
 ## Caching
 
-OpenNext emitted a recommendation (in `open-next.config.ts`) to consider enabling R2-based incremental caching for best results. This has intentionally **not** been configured as part of this task — no KV, R2, or other incremental cache backend is set up. Caching will be reconsidered when the site introduces ISR, frequently updated dynamic content, or other features that require persistent Next.js cache behavior across requests.
+Since 2026-10-11, prerendered pages are served from Workers static assets instead of being rendered on every request (`open-next.config.ts`: `staticAssetsIncrementalCache` with `enableCacheInterception`). Before this, OpenNext used its default "dummy" cache, so every page view re-rendered React in the Worker (`x-nextjs-cache: MISS`). That cost enough CPU that the dev preview hit error 1102 ("Worker exceeded resource limits") right after a deploy.
+
+- It fits this site because every page is prerendered at build time and nothing revalidates (no `revalidate`, no dynamic APIs). Only `/api/consultation` and `/_next/image` run per request.
+- The cache is read-only. `opennextjs-cloudflare deploy`, `upload` and `preview` (our `npm run deploy` / `upload` / `preview` scripts) copy the build's prerendered pages into `.open-next/assets/cdn-cgi/_next_cache`, which only the Worker can read. A new deploy is what updates it, so a plain `wrangler deploy` without OpenNext would leave pages uncached (rendered per request, as before).
+- Check it on any deployment: page responses carry `x-opennext-cache: HIT` (or `x-nextjs-cache: HIT`).
+- If a page ever needs ISR or revalidation, switch to the R2 incremental cache (see the [OpenNext caching docs](https://opennext.js.org/cloudflare/caching)).
 
 ## Rollback
 
@@ -99,7 +104,8 @@ Work through these in order:
 4. Inspect Cloudflare build and deployment logs (Workers Builds run logs, and the Worker's own deployment logs) for errors that only show up in the Cloudflare environment.
 5. Confirm the Worker name (`natty-fitness-trainer`) and the `WORKER_SELF_REFERENCE` service binding's `service` value still match each other in `wrangler.jsonc`.
 6. Confirm `.open-next/` (the generated OpenNext build output) is not committed to Git — it must always be produced fresh by the build step, never checked in.
-7. Distinguish **warnings** (informational console output, e.g. the Windows/OpenNext preview warning) from **failed builds** (a build/deploy command exits non-zero) or **HTTP 500 responses** (the Worker deployed but is erroring at runtime) — each requires a different fix.
+7. **Error 1102 ("Worker exceeded resource limits")** means a request used more CPU than the Workers plan allows. Check that pages still show `x-opennext-cache: HIT` (see Caching above), then the Worker's CPU time in the dashboard metrics.
+8. Distinguish **warnings** (informational console output, e.g. the Windows/OpenNext preview warning) from **failed builds** (a build/deploy command exits non-zero) or **HTTP 500 responses** (the Worker deployed but is erroring at runtime) — each requires a different fix.
 
 ## Manual dashboard configuration still required
 
