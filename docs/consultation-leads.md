@@ -142,7 +142,7 @@ Set `NEXT_PUBLIC_CONSULTATION_FORM_ENABLED` to anything other than `"true"` (or 
 
 Set these in `consultationFollowUpLinks` (`src/content/consultation.ts`). They're public URLs, not secrets; while a value is `null`, everything that depends on it stays hidden (thank-you page section, confirmation email line, FAQ and consultation-page wording).
 
-Current values: `bookingUrl` is the live Cal.com event. `questionnaire` is `QUESTIONNAIRE_PLACEHOLDER`, which is **not a working link**; it only lets the page and the email be tested with both links until the Google Form exists.
+Current values: `bookingUrl` is the live Cal.com event. `questionnaire` is `consultationQuestionnaire`, the live Google Form built on 2026-10-11 (form ID `1Fk6xeneEefdnVNofnOuTPJZRyDfaWepyonFAR9s1yt4`; pre-fill keys: email `entry.1674994638`, name `entry.1056930791`, format `entry.1007285777`). The reminder script's `QUESTIONNAIRE_*` script properties take the same values.
 
 - `bookingUrl`: the Cal.com event's public link, e.g. `https://cal.com/<username>/free-consultation`.
 - `questionnaire`: the Google Form's `…/viewform` link plus `entryIds`, the pre-fill keys (`entry.123456789`) of the three questions the site fills in: `email` (1.1 "Email"), `name` (1.2 "Full name") and `format` (5.7, "Which coaching format are you leaning toward?"). `docs/apps-script/build-questionnaire.gs` prints all of them; the form's "Get pre-filled link" option shows them too.
@@ -164,7 +164,7 @@ Keeping the pre-fill working:
 
 ## Go-live checklist
 
-1. Replace `QUESTIONNAIRE_PLACEHOLDER` with the real Google Form link and its three pre-fill keys, and ship that change. Until then, every confirmation email would carry a broken questionnaire link.
+1. ~~Replace the questionnaire placeholder with the real Google Form link and its three pre-fill keys~~ (done 2026-10-11), then test the form: every format, both self-check answers, one submission, and the Call prep tab.
 2. Merge and release the booking code the usual way (backup tag first).
 3. In Workers Builds, set `NEXT_PUBLIC_CONSULTATION_FORM_ENABLED=true` and redeploy the latest build.
 4. End-to-end test on `https://www.nattyfitnesstrainer.com/consultation` with a second email address: you land on the thank-you page, the calendar shows your name and email filled in, the request reaches the Gmail inbox with Reply set to the test address, and the confirmation from hello@ arrives with both links. Book a slot, confirm it lands on Google Calendar with a Meet link, then cancel it.
