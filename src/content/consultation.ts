@@ -86,20 +86,25 @@ export interface ConsultationFollowUpLinks {
 }
 
 /**
- * Placeholder until the questionnaire's Google Form exists, so the page and
- * the confirmation email can be tested with both links. It is NOT a working
- * link: replace it with the real form link and its Email question's
- * pre-fill key before the form goes live (docs/consultation-leads.md,
- * "Go-live checklist").
+ * The live questionnaire (Google Form "Client Questionnaire — Natty Fitness
+ * Trainer", built 2026-10-11 by docs/apps-script/build-questionnaire.gs).
+ * Public link and pre-fill keys, not secrets. Rewording questions in the
+ * Forms editor keeps these working; deleting and recreating Email, Full name
+ * or the coaching-format question doesn't (docs/consultation-leads.md).
  */
-export const QUESTIONNAIRE_PLACEHOLDER: ConsultationQuestionnaireLink = {
-  formUrl: "https://docs.google.com/forms/d/e/REPLACE-WITH-FORM-ID/viewform",
-  entryIds: { email: "entry.0", name: "entry.1", format: "entry.2" },
+export const consultationQuestionnaire: ConsultationQuestionnaireLink = {
+  formUrl:
+    "https://docs.google.com/forms/d/e/1FAIpQLSfiiXhwTdWt3wXGPst5RS8ii4ww6ti-wyrQoNd9vQIctbpwYg/viewform",
+  entryIds: {
+    email: "entry.1674994638",
+    name: "entry.1056930791",
+    format: "entry.1007285777",
+  },
 };
 
 export const consultationFollowUpLinks: ConsultationFollowUpLinks = {
   bookingUrl: "https://cal.com/nattyfitnesstrainer/free-consultation",
-  questionnaire: QUESTIONNAIRE_PLACEHOLDER,
+  questionnaire: consultationQuestionnaire,
 };
 
 /** Length and format of the free consultation call, as Nathnael set them. */
