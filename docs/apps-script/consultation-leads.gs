@@ -15,9 +15,10 @@
  *      missing. Skips anyone whose call time has passed, anyone marked
  *      Client or Closed, anyone with "Stop reminders" ticked, and anyone who
  *      replied STOP.
- *   3. Retention, off until RETENTION_ENABLED is "true": for people who
- *      don't become clients, deletes questionnaire answers after 6 months
- *      and Leads rows after 12 months.
+ *   3. Retention, off until RETENTION_ENABLED is "true": deletes Leads rows
+ *      of people who don't become clients after 12 months. Questionnaire
+ *      answers are cleaned up by questionnaire-scoring.gs in the private
+ *      responses sheet (its Profile tab's Client? box), not here.
  *
  * SETUP (once)
  *   1. Create a Google Sheet (e.g. "Natty Fitness Leads") in the same
@@ -45,7 +46,8 @@
  *                                   in Gmail under "Send mail as".
  *        CALENDAR_ID                Optional. Defaults to your main calendar.
  *        RETENTION_ENABLED          "true" once existing clients are marked
- *                                   Client in the Status column.
+ *                                   Client in the Status column (Leads rows
+ *                                   only).
  *   3. In the editor, choose setUp and press Run. Approve the permissions.
  *      It adds the Leads tab and a daily trigger at 9 AM Pacific.
  *   4. Deploy > New deployment > Web app. Execute as: Me. Who has access:
@@ -78,7 +80,6 @@ const COLUMNS = [
 const STATUSES = ["New", "Replied", "Client", "Closed"];
 
 const DAY_MS = 24 * 60 * 60 * 1000;
-const QUESTIONNAIRE_KEEP_DAYS = 183;
 
 /** The questionnaire's coaching-format answers (5.7), as the website sends them. */
 const FORMAT_ANSWERS = ["In-person", "Online", "Hybrid", "Not sure"];
@@ -356,7 +357,9 @@ function sendReminder_(options) {
 }
 
 // ---------------------------------------------------------------------------
-// 3. Retention (off until RETENTION_ENABLED is "true")
+// 3. Retention (off until RETENTION_ENABLED is "true"): Leads rows only.
+//    Questionnaire answers are deleted by questionnaire-scoring.gs, so one
+//    script owns that data and one "is a client" marker decides it.
 // ---------------------------------------------------------------------------
 
 function runRetention_(settings, now) {
@@ -381,20 +384,6 @@ function runRetention_(settings, now) {
     }
   }
 
-  // Questionnaire answers from people who aren't clients, after 6 months:
-  // removed from the form itself and from its responses sheet.
-  if (settings.formId) {
-    const cutoff = new Date(now.getTime() - QUESTIONNAIRE_KEEP_DAYS * DAY_MS);
-    const form = FormApp.openById(settings.formId);
-    form.getResponses().forEach(function (response) {
-      const email = responseEmail_(response, settings);
-      if (response.getTimestamp() < cutoff && !clients.has(email)) {
-        form.deleteResponse(response.getId());
-      }
-    });
-    deleteOldResponseRows_(form, settings, cutoff, clients);
-  }
-
   // Leads rows for people who aren't clients, after 12 months.
   const leadCutoff = new Date(now.getTime() - LEADS_KEEP_DAYS * DAY_MS);
   for (let r = values.length - 1; r >= 1; r--) {
@@ -403,28 +392,6 @@ function runRetention_(settings, now) {
       .trim()
       .toLowerCase();
     if (received && received < leadCutoff && status !== "client") {
-      sheet.deleteRow(r + 1);
-    }
-  }
-}
-
-function deleteOldResponseRows_(form, settings, cutoff, clients) {
-  const sheet = findResponsesSheet_(form);
-  if (!sheet) {
-    return;
-  }
-
-  const values = sheet.getDataRange().getValues();
-  const emailColumn = headerColumn_(values[0], settings.emailTitle);
-  for (let r = values.length - 1; r >= 1; r--) {
-    const timestamp = toDate_(values[r][0]);
-    const email =
-      emailColumn >= 0
-        ? String(values[r][emailColumn] || "")
-            .trim()
-            .toLowerCase()
-        : "";
-    if (timestamp && timestamp < cutoff && !clients.has(email)) {
       sheet.deleteRow(r + 1);
     }
   }

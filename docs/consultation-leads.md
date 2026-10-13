@@ -154,6 +154,17 @@ The full question list is in the Claude Doc "Client Questionnaire — Natty Fitn
 
 The script also adds three formula tabs to that private sheet: **Call prep** (pick a lead's email to see screening flags, key answers and every answer), **Question stats** (how often each question is answered) and **Changes** (a log of form edits). They only display what's already in the sheet, so nothing health-related is copied anywhere and the 6-month retention clean-up covers them. `refreshResponseTabs` rebuilds the first two.
 
+### Scoring (profile cards)
+
+[`docs/apps-script/questionnaire-scoring.gs`](apps-script/questionnaire-scoring.gs) is bound to the same private sheet (Extensions > Apps Script, then run `setUp`). It follows the "Scoring → program" tab of the questionnaire doc:
+
+- **Rubric** tab: every number and table the scoring uses, plus the Questions map (short key → exact question title) and the answer wordings the rules look for. The script reads it on every run; nothing is hard-coded. After editing, run Questionnaire → Rescore all.
+- **Profile** tab: one row per response (safety, avoid / limit, level, goal, starting days × minutes, split, reps and effort, weekly sets, cardio, top 3 priorities, equipment, recovery flags, life stage), colored Red, Yellow or Green. Client?, Start date and Notes are filled in by hand and survive rescoring; Re-test = Start date + 4 weeks.
+- **Call prep** is rebuilt to show the chosen person's profile card plus every answer (the build script stops touching it once Profile exists).
+- On each submission (installable onFormSubmit trigger) the response is scored and the script's owner gets a short email: name, safety color, level, days × minutes and a link to the Profile row. No health details, and no address is stored in the repo.
+- Red stops at Step 1 ("Hold until cleared"); Yellow keeps the level's exercise choices with Foundation effort. A safety question the sheet can't find stops scoring and sends a failure email; a blank safety answer is never Green.
+- **Retention is owned here:** every day, for anyone whose email isn't ticked Client? in Profile, response rows, the form's own responses and Profile rows older than `retentionDays` (183) are deleted. The Leads script no longer deletes questionnaire data; it only removes old Leads rows.
+
 Keeping the pre-fill working:
 
 - Edits in the Forms editor don't change the form link or the pre-fill keys.
@@ -172,7 +183,7 @@ Keeping the pre-fill working:
 
 ## Storage behavior
 
-The application has no database. A submission is emailed to Nathnael and, when configured, one row (request ID, date, name, email, coaching interest) is added to the private Leads sheet. Questionnaire answers live only in the questionnaire's own private responses sheet; the Leads sheet only records the date it was done. Retention for people who don't become clients: questionnaire answers 6 months, Leads rows 12 months (handled by the Apps Script once `RETENTION_ENABLED` is turned on).
+The application has no database. A submission is emailed to Nathnael and, when configured, one row (request ID, date, name, email, coaching interest) is added to the private Leads sheet. Questionnaire answers live only in the questionnaire's own private responses sheet; the Leads sheet only records the date it was done. Retention for people who don't become clients: questionnaire answers and their Profile rows 6 months (questionnaire-scoring.gs, daily, keyed to the Profile tab's Client? box), Leads rows 12 months (consultation-leads.gs once `RETENTION_ENABLED` is turned on, keyed to the Leads Status column).
 
 ## Daily reminder script
 
