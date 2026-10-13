@@ -33,7 +33,8 @@
  * Running buildQuestionnaire again refuses to make a second form. To print
  * the links and keys again later, run logQuestionnaireLinks. To rebuild the
  * Call prep and Question stats tabs (say, after deleting and re-adding a
- * question they use), run refreshResponseTabs.
+ * question they use), run refreshResponseTabs. Once questionnaire-scoring.gs
+ * is installed in the sheet, it owns Call prep and this script leaves it be.
  *
  * KEEP THE PRE-FILL WORKING
  *   - Never delete and recreate "Email", "Full name" or "Which coaching
@@ -1097,7 +1098,11 @@ function setUpResponseTabs_(form, options) {
   const columns = flagColumns_(form, responses);
   const ref = "'" + responses.getName().replace(/'/g, "''") + "'!";
 
-  buildCallPrepTab_(spreadsheet, responses, ref, columns);
+  // Once questionnaire-scoring.gs is installed it owns Call prep (it shows
+  // the scored Profile card), so don't overwrite its version.
+  if (!spreadsheet.getSheetByName("Profile")) {
+    buildCallPrepTab_(spreadsheet, responses, ref, columns);
+  }
   buildStatsTab_(spreadsheet, ref);
   if (!spreadsheet.getSheetByName(CHANGES_TAB)) {
     buildChangesTab_(spreadsheet);
