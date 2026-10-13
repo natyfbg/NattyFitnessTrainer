@@ -16,6 +16,11 @@ RESEND_API_KEY=
 CONSULTATION_TO_EMAIL=
 CONSULTATION_FROM_EMAIL=
 
+# Google Apps Script that adds each request to the Leads sheet (server-only,
+# optional). Leave blank locally unless you're testing the Leads sheet.
+LEADS_SCRIPT_URL=
+LEADS_SCRIPT_SECRET=
+
 # Local-only development bypass — see docs/consultation-leads.md. Never
 # honored when NODE_ENV is "production", regardless of this value.
 CONSULTATION_DEV_BYPASS=false

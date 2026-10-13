@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-type CtaVariant = "primary" | "secondary";
+export type CtaVariant = "primary" | "secondary";
 
 interface CtaLinkProps {
   readonly href: string;
@@ -18,6 +18,11 @@ const variantClassName: Record<CtaVariant, string> = {
   secondary:
     "border border-border text-foreground hover:border-gold hover:text-gold",
 };
+
+/** The CTA styling, for the rare external link that can't use CtaLink. */
+export function getCtaClassName(variant: CtaVariant = "primary"): string {
+  return `${baseClassName} ${variantClassName[variant]}`;
+}
 
 /** Shared CTA/button-link styling. Internal routes and anchors only. */
 export function CtaLink({

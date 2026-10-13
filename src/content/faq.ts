@@ -15,6 +15,8 @@
  * - the free consultation determines the appropriate coaching approach
  */
 
+import { consultationFollowUpLinks } from "./consultation";
+
 export type FaqCategoryId =
   | "getting-started"
   | "coaching-formats"
@@ -69,7 +71,9 @@ export const faqItems: readonly FaqItem[] = [
     category: "getting-started",
     question: "Does submitting the form confirm a booking?",
     answer:
-      "No. Submitting the consultation form sends your request directly to Nathnael by email — it doesn't automatically confirm a booking or session. Expect a personal reply rather than an instant confirmation.",
+      consultationFollowUpLinks.bookingUrl === null
+        ? "No. Submitting the consultation form sends your request directly to Nathnael by email — it doesn't automatically confirm a booking or session. Expect a personal reply rather than an instant confirmation."
+        : "Not by itself. Submitting the form sends your request to Nathnael. On the next page you can pick a time for your free call, and you'll also get an email with the same booking link. Your call is booked once you pick a time.",
   },
   {
     category: "getting-started",
