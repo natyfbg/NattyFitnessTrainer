@@ -16,21 +16,31 @@ export interface LogConsultationLeadParams {
   readonly coachingInterest: CoachingInterestValue;
 }
 
+export type LogConsultationLeadResult =
+  | { readonly logged: true }
+  | {
+      readonly logged: false;
+      /** Internal-only code for the failure log, e.g. "not-configured". */
+      readonly reason: string;
+      readonly status?: number;
+    };
+
 /**
  * Adds one row to the Leads tab through Nathnael's Google Apps Script web
  * app (docs/apps-script/consultation-leads.gs). Sends only the name,
  * email, coaching format, date and request ID: never the goals text,
- * phone, area or anything health-related. Best effort: returns false on
- * any failure, logs nothing, and never affects the visitor's response.
+ * phone, area or anything health-related. Best effort: returns a short
+ * failure code (never the reply body), and never affects the visitor's
+ * response.
  */
 export async function logConsultationLead(
   params: LogConsultationLeadParams,
-): Promise<boolean> {
+): Promise<LogConsultationLeadResult> {
   const url = process.env.LEADS_SCRIPT_URL;
   const secret = process.env.LEADS_SCRIPT_SECRET;
 
   if (!url || !secret) {
-    return false;
+    return { logged: false, reason: "not-configured" };
   }
 
   const controller = new AbortController();
@@ -57,16 +67,33 @@ export async function logConsultationLead(
     });
 
     if (!response.ok) {
-      return false;
+      return {
+        logged: false,
+        reason: `http-${response.status}`,
+        status: response.status,
+      };
     }
-    const result: unknown = await response.json();
-    return (
+
+    let result: unknown;
+    try {
+      result = await response.json();
+    } catch {
+      // Usually a Google sign-in or error page: the web app isn't deployed
+      // with access "Anyone", or LEADS_SCRIPT_URL isn't the /exec URL.
+      return { logged: false, reason: "reply-not-json" };
+    }
+
+    const ok =
       typeof result === "object" &&
       result !== null &&
-      (result as Record<string, unknown>).ok === true
-    );
-  } catch {
-    return false;
+      (result as Record<string, unknown>).ok === true;
+    // The script answers { ok: false } for a wrong secret or bad data.
+    return ok ? { logged: true } : { logged: false, reason: "script-refused" };
+  } catch (error) {
+    return {
+      logged: false,
+      reason: error instanceof Error ? error.name : "unknown-error",
+    };
   } finally {
     clearTimeout(timeoutId);
   }
