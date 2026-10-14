@@ -6,6 +6,17 @@
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "workers_dev": true,
   "preview_urls": true,
+  "observability": {
+    // Workers Logs keeps the app's own failure lines (request ID and error
+    // codes only, see src/lib/consultation/diagnostics.ts) so they can be
+    // read in the dashboard. Invocation logs stay off: they would record
+    // every request's details, which we don't need.
+    "enabled": true,
+    "logs": {
+      "enabled": true,
+      "invocation_logs": false,
+    },
+  },
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS",

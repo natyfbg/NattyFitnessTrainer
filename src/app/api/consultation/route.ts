@@ -11,6 +11,7 @@ import {
   sendConsultationEmail,
 } from "@/lib/consultation/email";
 import { logConsultationLead } from "@/lib/consultation/leads";
+import { logConsultationFailure } from "@/lib/consultation/diagnostics";
 import {
   isConsultationDevBypassActive,
   isConsultationFormEnabled,
@@ -21,8 +22,9 @@ import type {
 } from "@/lib/consultation/types";
 
 // This route never logs submitted form contents (name, email, phone,
-// city/area, goals) or visitor IP addresses — only opaque request IDs and
-// coarse, non-identifying error tags, when logging at all.
+// city/area, goals) or visitor IP addresses. When a step fails it logs one
+// line with the request ID and coarse, non-identifying error codes (see
+// src/lib/consultation/diagnostics.ts).
 
 const MAX_BODY_BYTES = 20_000;
 
@@ -228,6 +230,15 @@ export async function POST(request: Request): Promise<Response> {
       });
 
       if (!turnstileResult.success) {
+        logConsultationFailure("turnstile", {
+          requestId,
+          reason: turnstileResult.reason ?? "unknown",
+          status: turnstileResult.status,
+          errorCodes: turnstileResult.errorCodes,
+          hostname: turnstileResult.hostname,
+          action: turnstileResult.action,
+          expectedHostname: requestUrl.hostname,
+        });
         return jsonResponse(
           {
             ok: false,
@@ -268,6 +279,11 @@ export async function POST(request: Request): Promise<Response> {
     });
 
     if (!emailResult.delivered) {
+      logConsultationFailure("notification-email", {
+        requestId,
+        reason: emailResult.errorName ?? emailResult.reason,
+        status: emailResult.status,
+      });
       const status = emailResult.reason === "not-configured" ? 503 : 502;
       return jsonResponse(
         {
@@ -285,10 +301,11 @@ export async function POST(request: Request): Promise<Response> {
     // Nathnael has the request. The visitor's confirmation and the Leads
     // tab row happen after the response is sent, so they never slow the
     // visitor down, and a failure in either never changes what they're
-    // told. Neither logs anything about the visitor.
+    // told. Neither logs anything about the visitor: a failure logs only
+    // the request ID and an error code.
     const { fullName, email, coachingInterest } = validation.normalized;
     after(async () => {
-      await Promise.allSettled([
+      const [confirmation, lead] = await Promise.allSettled([
         sendConsultationConfirmationEmail({
           requestId,
           fullName,
@@ -303,11 +320,38 @@ export async function POST(request: Request): Promise<Response> {
           coachingInterest,
         }),
       ]);
+
+      if (confirmation.status === "rejected") {
+        logConsultationFailure("confirmation-email", {
+          requestId,
+          reason: "threw",
+        });
+      } else if (!confirmation.value.delivered) {
+        logConsultationFailure("confirmation-email", {
+          requestId,
+          reason: confirmation.value.errorName ?? confirmation.value.reason,
+          status: confirmation.value.status,
+        });
+      }
+
+      if (lead.status === "rejected") {
+        logConsultationFailure("leads-sheet", { requestId, reason: "threw" });
+      } else if (!lead.value.logged) {
+        logConsultationFailure("leads-sheet", {
+          requestId,
+          reason: lead.value.reason,
+          status: lead.value.status,
+        });
+      }
     });
 
     return jsonResponse({ ok: true, requestId }, 201);
-  } catch {
-    // Unexpected failure — no request data or error detail is logged.
+  } catch (error) {
+    // Unexpected failure: log only the error's name, never request data.
+    logConsultationFailure("unexpected", {
+      requestId,
+      reason: error instanceof Error ? error.name : "unknown-error",
+    });
     return jsonResponse(
       { ok: false, requestId, message: consultationGenericErrorMessage },
       503,

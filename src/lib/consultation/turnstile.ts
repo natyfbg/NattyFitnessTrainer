@@ -17,6 +17,13 @@ export interface TurnstileVerificationResult {
   readonly success: boolean;
   /** Internal-only diagnostic tag — never forward this to the browser. */
   readonly reason?: string;
+  /** Internal-only, for the failure log: siteverify's HTTP status. */
+  readonly status?: number;
+  /** Internal-only, for the failure log: Turnstile's error codes. */
+  readonly errorCodes?: readonly string[];
+  /** Internal-only, for the failure log: what Turnstile reported. */
+  readonly hostname?: string;
+  readonly action?: string;
 }
 
 interface TurnstileSiteverifyResponse {
@@ -29,7 +36,8 @@ interface TurnstileSiteverifyResponse {
 /**
  * Calls Cloudflare's Turnstile siteverify endpoint directly. Never logs
  * the token, the secret, or the visitor's IP — only returns a coarse
- * internal reason code for the caller to make a decision with.
+ * internal reason code (plus Turnstile's own error codes, hostname and
+ * action) for the caller to decide with and log.
  */
 export async function verifyTurnstileToken(
   params: TurnstileVerificationParams,
@@ -59,31 +67,56 @@ export async function verifyTurnstileToken(
     });
 
     if (!response.ok) {
-      return { success: false, reason: `http-${response.status}` };
+      return {
+        success: false,
+        reason: `http-${response.status}`,
+        status: response.status,
+      };
     }
 
     const data = (await response.json()) as TurnstileSiteverifyResponse;
 
     if (!data.success) {
-      return { success: false, reason: "not-successful" };
+      return {
+        success: false,
+        reason: "not-successful",
+        errorCodes: data["error-codes"],
+        hostname: data.hostname,
+        action: data.action,
+      };
     }
 
     if (data.action !== TURNSTILE_ACTION) {
-      return { success: false, reason: "action-mismatch" };
+      return {
+        success: false,
+        reason: "action-mismatch",
+        hostname: data.hostname,
+        action: data.action,
+      };
     }
 
     if (
       process.env.NODE_ENV === "production" &&
       data.hostname !== params.expectedHostname
     ) {
-      return { success: false, reason: "hostname-mismatch" };
+      return {
+        success: false,
+        reason: "hostname-mismatch",
+        hostname: data.hostname,
+        action: data.action,
+      };
     }
 
     return { success: true };
   } catch (error) {
+    // e.g. "AbortError: …" on the 8-second timeout, or a network error.
+    // The message never contains the token or secret (they're in the body).
     return {
       success: false,
-      reason: error instanceof Error ? error.name : "unknown-error",
+      reason:
+        error instanceof Error
+          ? `${error.name}: ${error.message}`
+          : "unknown-error",
     };
   } finally {
     clearTimeout(timeoutId);
