@@ -66,15 +66,23 @@ export async function verifyTurnstileToken(
       signal: controller.signal,
     });
 
-    if (!response.ok) {
-      return {
-        success: false,
-        reason: `http-${response.status}`,
-        status: response.status,
-      };
+    // siteverify answers with JSON even when it refuses the request (a 4xx),
+    // so read its error codes before looking at the status.
+    let data: TurnstileSiteverifyResponse | null;
+    try {
+      data = (await response.json()) as TurnstileSiteverifyResponse;
+    } catch {
+      data = null;
     }
 
-    const data = (await response.json()) as TurnstileSiteverifyResponse;
+    if (!response.ok || !data) {
+      return {
+        success: false,
+        reason: response.ok ? "reply-not-json" : `http-${response.status}`,
+        status: response.status,
+        errorCodes: data?.["error-codes"],
+      };
+    }
 
     if (!data.success) {
       return {
