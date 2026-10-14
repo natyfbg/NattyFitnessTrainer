@@ -26,7 +26,15 @@ export type SendConsultationEmailResult =
   | {
       readonly delivered: false;
       readonly reason: "not-configured" | "provider-error";
+      /** Internal-only, for the failure log: Resend's HTTP status. */
+      readonly status?: number;
+      /** Internal-only, for the failure log: e.g. "AbortError" on a timeout. */
+      readonly errorName?: string;
     };
+
+function errorName(error: unknown): string {
+  return error instanceof Error ? error.name : "unknown-error";
+}
 
 function escapeHtml(value: string): string {
   return value
@@ -142,12 +150,20 @@ export async function sendConsultationEmail(
     });
 
     if (!response.ok) {
-      return { delivered: false, reason: "provider-error" };
+      return {
+        delivered: false,
+        reason: "provider-error",
+        status: response.status,
+      };
     }
 
     return { delivered: true };
-  } catch {
-    return { delivered: false, reason: "provider-error" };
+  } catch (error) {
+    return {
+      delivered: false,
+      reason: "provider-error",
+      errorName: errorName(error),
+    };
   } finally {
     clearTimeout(timeoutId);
   }
@@ -320,9 +336,13 @@ export async function sendConsultationConfirmationEmail(
 
     return response.ok
       ? { delivered: true }
-      : { delivered: false, reason: "provider-error" };
-  } catch {
-    return { delivered: false, reason: "provider-error" };
+      : { delivered: false, reason: "provider-error", status: response.status };
+  } catch (error) {
+    return {
+      delivered: false,
+      reason: "provider-error",
+      errorName: errorName(error),
+    };
   } finally {
     clearTimeout(timeoutId);
   }

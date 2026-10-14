@@ -90,6 +90,36 @@ Since 2026-10-11, prerendered pages are served from Workers static assets instea
 - Check it on any deployment: page responses carry `x-opennext-cache: HIT` (or `x-nextjs-cache: HIT`).
 - If a page ever needs ISR or revalidation, switch to the R2 incremental cache (see the [OpenNext caching docs](https://opennext.js.org/cloudflare/caching)).
 
+## Logs
+
+Workers Logs is on (`observability` in `wrangler.jsonc`) with invocation logs off, so the only lines stored are the ones the app writes. Today that is one JSON line per failed step of a consultation request (`src/lib/consultation/diagnostics.ts`):
+
+```json
+{
+  "event": "consultation_failure",
+  "step": "turnstile",
+  "requestId": "…",
+  "reason": "not-successful",
+  "errorCodes": ["invalid-input-secret"]
+}
+```
+
+- `step` is `turnstile`, `notification-email`, `confirmation-email`, `leads-sheet` or `unexpected`. `reason`, `status`, `errorCodes`, `hostname` and `action` say why.
+- Lines never contain a name, email, phone, area, goals text, Turnstile token, secret or IP address. Keep it that way when adding new ones.
+- Read them in the Cloudflare dashboard: **Workers & Pages → natty-fitness-trainer → Logs** (search for `consultation_failure`), or live with **Real-time logs** / `wrangler tail`.
+
+Common reasons:
+
+| Step                                    | Reason                                    | Meaning                                                                                                              |
+| --------------------------------------- | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| turnstile                               | `not-successful` + `invalid-input-secret` | `TURNSTILE_SECRET_KEY` doesn't belong to the widget whose site key the site was built with.                          |
+| turnstile                               | `not-successful` + `timeout-or-duplicate` | The token expired (5 minutes) or was already used. The visitor just retries.                                         |
+| turnstile                               | `hostname-mismatch` / `action-mismatch`   | Turnstile reported a different hostname or action than the request.                                                  |
+| turnstile                               | `AbortError` / `TypeError`                | siteverify didn't answer in 8 seconds, or the request failed.                                                        |
+| notification-email / confirmation-email | `provider-error` + `status`               | Resend refused the email (401/403: API key; 422: from address or domain).                                            |
+| leads-sheet                             | `reply-not-json`                          | The Apps Script web app isn't deployed with access "Anyone", or `LEADS_SCRIPT_URL` isn't its `/exec` URL.            |
+| leads-sheet                             | `script-refused`                          | The script rejected the row, usually because `LEADS_SCRIPT_SECRET` doesn't match its `LEADS_SECRET` script property. |
+
 ## Rollback
 
 If a production deployment causes a regression, use Cloudflare's Worker deployment/version history (in the Cloudflare dashboard, or `wrangler deployments list` / `wrangler rollback`) to identify and restore a previously working version. Do not use Git history rewriting (e.g. revert-by-force-push, history rewrites) as a rollback method — Git history and live Worker state are managed independently.
@@ -105,7 +135,8 @@ Work through these in order:
 5. Confirm the Worker name (`natty-fitness-trainer`) and the `WORKER_SELF_REFERENCE` service binding's `service` value still match each other in `wrangler.jsonc`.
 6. Confirm `.open-next/` (the generated OpenNext build output) is not committed to Git — it must always be produced fresh by the build step, never checked in.
 7. **Error 1102 ("Worker exceeded resource limits")** means a request used more CPU than the Workers plan allows. Check that pages still show `x-opennext-cache: HIT` (see Caching above), then the Worker's CPU time in the dashboard metrics.
-8. Distinguish **warnings** (informational console output, e.g. the Windows/OpenNext preview warning) from **failed builds** (a build/deploy command exits non-zero) or **HTTP 500 responses** (the Worker deployed but is erroring at runtime) — each requires a different fix.
+8. **"We couldn't verify your submission"** on the consultation form, or any other consultation failure: find the request's `consultation_failure` line in the Worker's logs (see Logs above).
+9. Distinguish **warnings** (informational console output, e.g. the Windows/OpenNext preview warning) from **failed builds** (a build/deploy command exits non-zero) or **HTTP 500 responses** (the Worker deployed but is erroring at runtime) — each requires a different fix.
 
 ## Manual dashboard configuration still required
 
