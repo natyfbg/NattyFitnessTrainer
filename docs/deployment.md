@@ -110,15 +110,17 @@ Workers Logs is on (`observability` in `wrangler.jsonc`) with invocation logs of
 
 Common reasons:
 
-| Step                                    | Reason                                    | Meaning                                                                                                              |
-| --------------------------------------- | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| turnstile                               | `not-successful` + `invalid-input-secret` | `TURNSTILE_SECRET_KEY` doesn't belong to the widget whose site key the site was built with.                          |
-| turnstile                               | `not-successful` + `timeout-or-duplicate` | The token expired (5 minutes) or was already used. The visitor just retries.                                         |
-| turnstile                               | `hostname-mismatch` / `action-mismatch`   | Turnstile reported a different hostname or action than the request.                                                  |
-| turnstile                               | `AbortError` / `TypeError`                | siteverify didn't answer in 8 seconds, or the request failed.                                                        |
-| notification-email / confirmation-email | `provider-error` + `status`               | Resend refused the email (401/403: API key; 422: from address or domain).                                            |
-| leads-sheet                             | `reply-not-json`                          | The Apps Script web app isn't deployed with access "Anyone", or `LEADS_SCRIPT_URL` isn't its `/exec` URL.            |
-| leads-sheet                             | `script-refused`                          | The script rejected the row, usually because `LEADS_SCRIPT_SECRET` doesn't match its `LEADS_SECRET` script property. |
+| Step                                    | Reason                                  | Meaning                                                                                                              |
+| --------------------------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| turnstile                               | `http-400` + `errorCodes`               | siteverify refused the request. The error codes say why (rows below).                                                |
+| turnstile                               | `invalid-input-secret`                  | `TURNSTILE_SECRET_KEY` is wrong: not a valid secret, or a rotated-out one.                                           |
+| turnstile                               | `invalid-input-response`                | The token isn't valid for this secret: it came from a different widget (site key), or it's malformed or expired.     |
+| turnstile                               | `timeout-or-duplicate`                  | The token expired (5 minutes) or was already used. The visitor just retries.                                         |
+| turnstile                               | `hostname-mismatch` / `action-mismatch` | Turnstile reported a different hostname or action than the request.                                                  |
+| turnstile                               | `AbortError` / `TypeError`              | siteverify didn't answer in 8 seconds, or the request failed.                                                        |
+| notification-email / confirmation-email | `provider-error` + `status`             | Resend refused the email (401/403: API key; 422: from address or domain).                                            |
+| leads-sheet                             | `reply-not-json`                        | The Apps Script web app isn't deployed with access "Anyone", or `LEADS_SCRIPT_URL` isn't its `/exec` URL.            |
+| leads-sheet                             | `script-refused`                        | The script rejected the row, usually because `LEADS_SCRIPT_SECRET` doesn't match its `LEADS_SECRET` script property. |
 
 ## Rollback
 
