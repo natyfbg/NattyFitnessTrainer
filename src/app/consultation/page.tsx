@@ -18,7 +18,7 @@ import {
   isConsultationFormEnabled,
 } from "@/lib/consultation/config";
 
-const title = "Free Consultation";
+const title = "Free Personal Training Consultation";
 
 export const metadata: Metadata = {
   title,

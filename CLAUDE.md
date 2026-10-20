@@ -62,7 +62,7 @@ In addition to the implementation rules in AGENTS.md above, when working in this
 ## Coaching and About page rules
 
 - Training format (online/hybrid/in-person) and support tier (check-in frequency, live-session count, communication cadence, customization level) are different concepts — support tiers are undesigned and unpriced; never invent one on `/coaching`, `/about`, or elsewhere.
-- Never invent exact response times, package inclusions, session counts, certification numbers/renewal dates, competitions, injuries, awards, dates, or a specific service-radius/city beyond the confirmed general "Bay Area" label.
+- Never invent exact response times, package inclusions, session counts, certification numbers/renewal dates, competitions, injuries, awards, dates, a service radius, or any city beyond the confirmed `serviceAreas` list in `src/content/trainer.ts` (the general label is "Bay Area").
 - The business inbox address is environment-configured for the consultation flow only — never hardcode it into public page content, and never publish it without explicit instruction.
 - Coaching-format comparisons must only state confirmed distinctions and must remain usable on narrow screens without horizontal table overflow (see the `FormatComparison` pattern in `docs/design-system.md`).
 - Reuse existing homepage components (`HowItWorks`, `ConsultationCta`, `TrustStrip`, `FaqAccordion`) on new pages instead of duplicating their content or markup.

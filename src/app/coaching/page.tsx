@@ -14,10 +14,10 @@ import {
   SITE_LOCALE,
   getCanonicalUrl,
 } from "@/content/site";
+import { serviceAreaList } from "@/content/trainer";
 
-const title = "Coaching";
-const description =
-  "Online coaching, hybrid coaching, and in-person personal training in the Bay Area — personalized programming for strength, fat loss, and general fitness, matched to your goals and schedule.";
+const title = "Personal Training in Oakland, SF & the East Bay";
+const description = `In-person personal training at your gym or home in ${serviceAreaList}, plus online and hybrid coaching.`;
 
 export const metadata: Metadata = {
   title,

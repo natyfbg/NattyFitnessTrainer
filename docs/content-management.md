@@ -60,9 +60,19 @@ Do not add a URL that hasn't been explicitly provided, and never use a placehold
 
 Edit `src/content/terms.ts` and set `termsLastUpdated` to the date of the change. Keep plan prices and per-plan session counts off this page (pricing is shared privately). If you change something clients pay, the policy itself promises 7 to 30 days' notice by text or email.
 
-### How to update credentials and general service area
+### How to update credentials and service areas
 
-Edit `credentials`, `yearsOfExperience`, and `serviceAreaLabel` in `src/content/trainer.ts`. Keep `serviceAreaLabel` general (e.g. "Bay Area") unless a specific city is explicitly confirmed for publication.
+Edit `credentials`, `yearsOfExperience`, `serviceAreaLabel`, `serviceAreas` and `inPersonLocations` in `src/content/trainer.ts`.
+
+- `serviceAreaLabel` stays general ("Bay Area") for short copy.
+- `serviceAreas` lists the cities Nathnael confirmed for in-person and hybrid sessions (Oakland, Emeryville, Berkeley, Piedmont, San Francisco, Walnut Creek, Orinda as of 2026-10-20). The homepage, /coaching, the FAQ and the structured data read it, so a change here updates every page. Keep it identical to the Google Business Profile's service areas, and never name a city on the site that isn't in it.
+- `inPersonLocations` says where sessions happen (the client's gym if it allows guests, their home, or their apartment gym).
+
+## Search (SEO)
+
+- Page titles lead with what people search for: the homepage title is `HOME_TITLE` in `src/content/site.ts` ("Bay Area Personal Trainer | Natty Fitness Trainer"); other pages set `title` in their `page.tsx` and get " | Natty Fitness Trainer" added.
+- The homepage carries two JSON-LD blocks: `LocalBusinessJsonLd` (a service-area business with the confirmed cities, phone, email and socials, no street address, matching the Google Business Profile) and `PersonJsonLd` (Nathnael, linked to the business by `@id`). /about carries `PersonJsonLd`.
+- Google ignores the old "keywords" meta tag, so there isn't one. Titles, descriptions, headings, page copy and the Business Profile are what count.
 
 ## How to add website photographs
 

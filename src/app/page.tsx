@@ -10,23 +10,25 @@ import { InsightsPreview } from "@/components/home/insights-preview";
 import { FaqPreview } from "@/components/home/faq-preview";
 import { ConsultationCta } from "@/components/home/consultation-cta";
 import { PersonJsonLd } from "@/components/person-json-ld";
+import { LocalBusinessJsonLd } from "@/components/local-business-json-ld";
 import {
   DEFAULT_SOCIAL_IMAGE,
+  HOME_DESCRIPTION,
+  HOME_TITLE,
   SITE_NAME,
-  SITE_TAGLINE,
   SITE_LOCALE,
   getCanonicalUrl,
 } from "@/content/site";
 
 export const metadata: Metadata = {
-  title: SITE_NAME,
-  description: SITE_TAGLINE,
+  title: { absolute: HOME_TITLE },
+  description: HOME_DESCRIPTION,
   alternates: {
     canonical: getCanonicalUrl("/"),
   },
   openGraph: {
-    title: SITE_NAME,
-    description: SITE_TAGLINE,
+    title: HOME_TITLE,
+    description: HOME_DESCRIPTION,
     url: getCanonicalUrl("/"),
     siteName: SITE_NAME,
     locale: SITE_LOCALE,
@@ -35,14 +37,15 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: SITE_NAME,
-    description: SITE_TAGLINE,
+    title: HOME_TITLE,
+    description: HOME_DESCRIPTION,
   },
 };
 
 export default function Home() {
   return (
     <main>
+      <LocalBusinessJsonLd />
       <PersonJsonLd />
       <Hero />
       <TrustStrip />
