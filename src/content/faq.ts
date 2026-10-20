@@ -16,6 +16,7 @@
  */
 
 import { consultationFollowUpLinks } from "./consultation";
+import { serviceAreaList, trainer } from "./trainer";
 
 export type FaqCategoryId =
   | "getting-started"
@@ -100,6 +101,11 @@ export const faqItems: readonly FaqItem[] = [
     question: "How does in-person training work?",
     answer:
       "In-person training means training together face to face in the Bay Area, with hands-on coaching, technique correction, and a plan that's reviewed monthly.",
+  },
+  {
+    category: "coaching-formats",
+    question: "Where do in-person sessions take place?",
+    answer: `Sessions happen ${trainer.inPersonLocations}. In-person and hybrid coaching cover ${serviceAreaList}. Online coaching works from anywhere.`,
   },
   {
     category: "coaching-formats",

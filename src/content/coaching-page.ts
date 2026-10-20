@@ -7,9 +7,11 @@
  *
  * No pricing, package inclusions, session counts, response times, or
  * service-radius claims are defined here — none of that is confirmed yet.
+ * Cities come only from the confirmed `serviceAreas` in trainer.ts.
  */
 import type { TrainingStyleId } from "./coaching";
 import type { HomeCta, SectionIntro } from "./home";
+import { serviceAreaList, trainer } from "./trainer";
 
 export interface CoachingHeroContent {
   readonly eyebrow: string;
@@ -89,24 +91,22 @@ export const coachingFormatDetails: readonly CoachingFormatDetail[] = [
       "Programming adjusts as you progress",
     ],
     limitations: [
-      "In-person portion is limited to the Bay Area",
+      `In-person sessions are limited to ${serviceAreaList}`,
       "Requires coordinating in-person and independent training",
       "Not fully remote",
     ],
   },
   {
     id: "in-person",
-    suitedFor:
-      "People in the Bay Area who want direct, hands-on coaching during every session.",
-    howItWorks:
-      "Train together in person, with hands-on coaching, technique correction, and a plan that's reviewed monthly and adjusted as you go.",
+    suitedFor: `People in ${serviceAreaList} who want direct, hands-on coaching during every session.`,
+    howItWorks: `Train together in person ${trainer.inPersonLocations}, with hands-on coaching, technique correction, and a plan that's reviewed monthly and adjusted as you go.`,
     advantages: [
       "Direct, hands-on coaching and technique correction",
       "Consistent accountability during scheduled sessions",
       "Immediate feedback and in-session adjustments",
     ],
     limitations: [
-      "Only available in the Bay Area",
+      "Only available in the cities listed above",
       "Requires availability for in-person sessions",
       "Less flexible than remote options",
     ],
