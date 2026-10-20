@@ -1,16 +1,25 @@
 import { SITE_NAME, SITE_URL, getCanonicalUrl } from "@/content/site";
 import { trainer } from "@/content/trainer";
+import {
+  BUSINESS_JSON_LD_ID,
+  PERSON_JSON_LD_ID,
+} from "@/components/local-business-json-ld";
 
 interface PersonJsonLdSchema {
   readonly "@context": "https://schema.org";
   readonly "@type": "Person";
+  readonly "@id": string;
   readonly name: string;
   readonly jobTitle: string;
   readonly description: string;
   readonly url: string;
-  readonly areaServed: string;
+  readonly areaServed: readonly {
+    readonly "@type": "City";
+    readonly name: string;
+  }[];
   readonly worksFor: {
-    readonly "@type": "Organization";
+    readonly "@type": "ProfessionalService";
+    readonly "@id": string;
     readonly name: string;
     readonly url: string;
   };
@@ -32,12 +41,21 @@ export function PersonJsonLd() {
   const json: PersonJsonLdSchema = {
     "@context": "https://schema.org",
     "@type": "Person",
+    "@id": PERSON_JSON_LD_ID,
     name: trainer.name,
     jobTitle: "Personal Trainer",
     description: `${trainer.credentials.join(", ")} with ${trainer.yearsOfExperience} years of training experience.`,
     url: getCanonicalUrl("/about"),
-    areaServed: trainer.serviceAreaLabel,
-    worksFor: { "@type": "Organization", name: SITE_NAME, url: SITE_URL },
+    areaServed: trainer.serviceAreas.map((city) => ({
+      "@type": "City",
+      name: `${city}, CA`,
+    })),
+    worksFor: {
+      "@type": "ProfessionalService",
+      "@id": BUSINESS_JSON_LD_ID,
+      name: SITE_NAME,
+      url: SITE_URL,
+    },
     ...(sameAs.length > 0 ? { sameAs } : {}),
   };
   // Guard against "</script>" sequences breaking out of the script tag.

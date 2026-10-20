@@ -3,6 +3,15 @@ export const SITE_NAME = "Natty Fitness Trainer" as const;
 export const SITE_TAGLINE =
   "Personal training and coaching with Nathnael Gebre." as const;
 
+/**
+ * Homepage search title and description. The title leads with the phrase
+ * people search for ("Bay Area personal trainer"); the description names
+ * confirmed service areas only (see `serviceAreas` in trainer.ts).
+ */
+export const HOME_TITLE = "Bay Area Personal Trainer | Natty Fitness Trainer";
+export const HOME_DESCRIPTION =
+  "NFPT Certified Bay Area personal trainer. In-person training in Oakland, Berkeley, San Francisco, and the East Bay, plus online coaching. Free consultation.";
+
 const DEFAULT_SITE_URL = "https://www.nattyfitnesstrainer.com" as const;
 
 /**

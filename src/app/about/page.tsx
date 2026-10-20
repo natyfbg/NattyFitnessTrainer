@@ -14,7 +14,7 @@ import {
   getCanonicalUrl,
 } from "@/content/site";
 
-const title = "About";
+const title = "About Nathnael Gebre, Bay Area Personal Trainer";
 const description =
   "Nathnael Gebre is an NFPT Certified Personal Trainer with seven years of training experience, coaching online, hybrid, and in person in the Bay Area with a structured, sustainable training philosophy.";
 

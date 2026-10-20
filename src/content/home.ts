@@ -19,10 +19,10 @@ export interface HeroContent {
 }
 
 export const heroContent: HeroContent = {
-  eyebrow: "Personal Training — Bay Area & Online",
-  headline: "Disciplined coaching for lasting strength and progress.",
+  eyebrow: "Oakland · San Francisco · East Bay · Online",
+  headline: "Bay Area personal trainer for lasting strength and progress.",
   supportingStatement:
-    "Personalized programming and monthly progress assessments, built around your goals — online, hybrid, or in person in the Bay Area.",
+    "Personalized programming and monthly progress assessments, built around your goals — in person at your gym or home, hybrid, or online.",
   primaryCta: { label: "Book a Free Consultation", href: "/consultation" },
   secondaryCta: { label: "Explore Coaching", href: "/#coaching" },
 };

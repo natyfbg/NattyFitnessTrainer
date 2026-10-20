@@ -10,7 +10,7 @@ import {
   getCanonicalUrl,
 } from "@/content/site";
 
-const title = "FAQ";
+const title = "Personal Training FAQ";
 const description =
   "Answers to common questions about online coaching, hybrid coaching, in-person personal training in the Bay Area, personalized programming, and general nutrition guidance.";
 
