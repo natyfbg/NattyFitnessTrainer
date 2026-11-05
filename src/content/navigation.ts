@@ -1,3 +1,5 @@
+import { billingPortalLive } from "./billing";
+
 export interface NavItem {
   readonly label: string;
   readonly href: string;
@@ -47,6 +49,8 @@ export const footerNavigation: readonly NavGroup[] = [
     items: [
       { label: "Privacy", href: "/privacy" },
       { label: "Terms & cancellation", href: "/terms" },
+      // Shown once a live Stripe portal link is set in src/content/billing.ts.
+      ...(billingPortalLive ? [{ label: "Billing", href: "/billing" }] : []),
     ],
   },
-] as const;
+];

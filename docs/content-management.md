@@ -25,6 +25,7 @@ All business copy is centralized under `src/content/` as typed TypeScript module
 | `src/content/social.ts`     | Social profile links (built from `trainer.social`; `null` URLs are skipped)                                       |
 | `src/content/contact.ts`    | Email, call and text links built from `trainer.contact`                                                           |
 | `src/content/terms.ts`      | `/terms` booking, cancellation and refund policy, plus `termsLastUpdated`                                         |
+| `src/content/billing.ts`    | `/billing` copy and the Stripe customer portal link (`billingPortalUrl`)                                          |
 | `src/content/nfg-app.ts`    | Upcoming NFG app wording                                                                                          |
 | `src/content/insights/`     | Insights article types and the article registry (see below)                                                       |
 
@@ -59,6 +60,22 @@ Do not add a URL that hasn't been explicitly provided, and never use a placehold
 ### How to update the cancellation policy
 
 Edit `src/content/terms.ts` and set `termsLastUpdated` to the date of the change. Keep plan prices and per-plan session counts off this page (pricing is shared privately). If you change something clients pay, the policy itself promises 7 to 30 days' notice by text or email.
+
+### How to update the billing portal link
+
+`/billing` is for existing clients: it sends them to Stripe's customer portal to update their card, see invoices or cancel. It's kept out of search results and the sitemap.
+
+Set `billingPortalUrl` in `src/content/billing.ts` to the link from Stripe → Settings → Billing → Customer portal → Portal link:
+
+```ts
+export const billingPortalUrl: string | null =
+  "https://billing.stripe.com/p/login/<id>";
+```
+
+- A sandbox link contains `/p/login/test_`. While one is set, the page shows a "Test mode" note and the footer doesn't link to /billing, so it's safe on the dev preview. Swap in the live link before /billing ships to `main`; the footer's Legal column then links to it.
+- `null` hides the button and tells clients to text or email instead.
+- Stripe emails clients a sign-in link, so there's no password. The portal's features (cancel, update card, invoices) are set in Stripe, not here. If you change them, keep the page's "In the billing portal you can" list matching.
+- The "When you pay" table comes from the "how-this-works" table in `src/content/terms.ts`, so update it there.
 
 ### How to update credentials and service areas
 
