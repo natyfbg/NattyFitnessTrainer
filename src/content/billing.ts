@@ -7,13 +7,13 @@ import { termsPage, type TermsTable, type TermsText } from "./terms";
  * them a sign-in link to update their card, see invoices or cancel. Set to
  * null to hide the button.
  *
- * This is the SANDBOX link (it contains "/login/test_"), for testing on the
- * dev preview. Replace it with the live link before /billing ships to main:
- * while a test link is set, the page shows a test-mode note and the footer
- * doesn't link to /billing.
+ * This is the LIVE link. To test against Stripe's sandbox instead, use the
+ * sandbox portal link (it contains "/login/test_"): while a test link is set,
+ * the page shows a test-mode note and the footer doesn't link to /billing.
+ * Never ship a test link to main.
  */
 export const billingPortalUrl: string | null =
-  "https://billing.stripe.com/p/login/test_dRm3cw9DX4xo27Z42E0kE00";
+  "https://billing.stripe.com/p/login/bJe9AT3ay1Y0aET20hfUQ00";
 
 /** True while the portal link points at Stripe's sandbox. */
 export const isTestPortalLink: boolean =
