@@ -17,6 +17,7 @@ A concise pre-production checklist for the Natty Fitness Trainer site. This is a
 - [ ] `CONSULTATION_DEV_BYPASS` is **not** set to `true` in the production environment (it's already code-gated to non-production, but the variable shouldn't be present in production configuration either).
 - [ ] A manual `npm run preview` has been run against the OpenNext/Cloudflare Workers runtime, not just `npm run dev`.
 - [ ] Resend's sending domain is verified — an unverified domain will fail to send in production.
+- [ ] Responses carry the security headers listed in `docs/deployment.md` ("Security headers"): check with `curl -sI` on a page and on an image.
 
 ## Consultation
 

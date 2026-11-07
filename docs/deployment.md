@@ -90,6 +90,25 @@ Since 2026-10-11, prerendered pages are served from Workers static assets instea
 - Check it on any deployment: page responses carry `x-opennext-cache: HIT` (or `x-nextjs-cache: HIT`).
 - If a page ever needs ISR or revalidation, switch to the R2 incremental cache (see the [OpenNext caching docs](https://opennext.js.org/cloudflare/caching)).
 
+## Security headers
+
+Since 2026-11-06, every response carries these headers. `next.config.ts` sets them for pages and the API (including cached pages answered by OpenNext's cache interception), and `public/_headers` repeats them for files Cloudflare serves straight from static assets. Keep the two lists the same.
+
+| Header                      | Value                                                                                                       | Why                                                                        |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `Strict-Transport-Security` | `max-age=31536000; includeSubDomains`                                                                       | Browsers only use HTTPS for a year                                         |
+| `X-Content-Type-Options`    | `nosniff`                                                                                                   | Files are only treated as the type they're served as                       |
+| `Referrer-Policy`           | `strict-origin-when-cross-origin`                                                                           | Other sites see the domain, not the full page address                      |
+| `X-Frame-Options`           | `DENY`                                                                                                      | The site can't be shown inside another site's frame (clickjacking)         |
+| `Permissions-Policy`        | `camera=(), microphone=(), geolocation=(), browsing-topics=()`                                              | Turns off browser features the site never uses                             |
+| `Content-Security-Policy`   | `frame-ancestors 'none'; base-uri 'self'; object-src 'none'; form-action 'self'; upgrade-insecure-requests` | Same frame rule for modern browsers, plus limits that can't affect scripts |
+
+`poweredByHeader: false` also stops Next.js from sending `X-Powered-By`.
+
+The Content-Security-Policy deliberately doesn't restrict scripts, frames or requests, so the Turnstile widget, the Cal.com embed and Cloudflare Web Analytics need no allowlist. A stricter policy is possible later; see `docs/consultation-leads.md` ("Content-Security-Policy") for what it must allow, and test it on the dev preview before it reaches `main`.
+
+Check them on any deployment with `curl -sI https://www.nattyfitnesstrainer.com/ | grep -iE "strict-transport|x-frame|content-security"`.
+
 ## Logs
 
 Workers Logs is on (`observability` in `wrangler.jsonc`) with invocation logs off, so the only lines stored are the ones the app writes. Today that is one JSON line per failed step of a consultation request (`src/lib/consultation/diagnostics.ts`):

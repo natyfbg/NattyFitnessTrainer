@@ -42,16 +42,16 @@ export default function InsightsPage() {
   return (
     <main className="mx-auto w-full max-w-3xl px-6 py-16">
       <header className="mb-10">
-        <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
           Insights
         </h1>
-        <p className="mt-3 text-lg text-zinc-600 dark:text-zinc-400">
+        <p className="mt-3 text-lg text-foreground-muted">
           Fitness research, guides, and practical advice.
         </p>
       </header>
 
       {articles.length === 0 ? (
-        <section className="rounded-lg border border-zinc-200 p-6 text-zinc-600 dark:border-zinc-800 dark:text-zinc-400">
+        <section className="rounded-lg border border-border p-6 text-foreground-muted">
           <p>
             Articles are in progress and will be published here soon. Check back
             for evidence-informed fitness research, guides, and practical
@@ -63,7 +63,7 @@ export default function InsightsPage() {
           {articles.map((article) => (
             <li key={article.slug}>
               <article>
-                <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">
+                <h2 className="text-xl font-semibold text-foreground">
                   <Link
                     href={`/insights/${article.slug}`}
                     className="hover:underline"
@@ -71,13 +71,13 @@ export default function InsightsPage() {
                     {article.title}
                   </Link>
                 </h2>
-                <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                <p className="mt-1 text-sm text-foreground-muted">
                   {getCategoryLabel(article.category)} ·{" "}
                   <time dateTime={article.publishedAt}>
                     {formatDate(article.publishedAt)}
                   </time>
                 </p>
-                <p className="mt-2 text-zinc-700 dark:text-zinc-300">
+                <p className="mt-2 text-foreground-muted">
                   {article.description}
                 </p>
               </article>
@@ -86,7 +86,7 @@ export default function InsightsPage() {
         </ul>
       )}
 
-      <p className="mt-10 text-sm text-zinc-500 dark:text-zinc-400">
+      <p className="mt-10 text-sm text-foreground-muted">
         Looking for personalized guidance?{" "}
         <Link href="/coaching" className="underline hover:no-underline">
           Explore coaching

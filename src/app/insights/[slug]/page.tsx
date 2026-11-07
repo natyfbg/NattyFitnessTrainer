@@ -89,20 +89,20 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       <article>
         <header className="mb-8">
           {frontmatter.draft ? (
-            <p className="mb-4 inline-block rounded bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+            <p className="mb-4 inline-block rounded bg-background-elevated px-3 py-1 text-xs font-medium text-gold">
               Draft — visible only in local development
             </p>
           ) : null}
-          <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+          <p className="text-sm font-medium text-foreground-muted">
             {getCategoryLabel(frontmatter.category)}
           </p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+          <h1 className="mt-1 text-3xl font-semibold tracking-tight text-foreground">
             {frontmatter.title}
           </h1>
-          <p className="mt-3 text-lg text-zinc-600 dark:text-zinc-400">
+          <p className="mt-3 text-lg text-foreground-muted">
             {frontmatter.description}
           </p>
-          <dl className="mt-4 flex flex-wrap gap-x-6 gap-y-1 text-sm text-zinc-500 dark:text-zinc-400">
+          <dl className="mt-4 flex flex-wrap gap-x-6 gap-y-1 text-sm text-foreground-muted">
             <div className="flex gap-1">
               <dt className="font-medium">By</dt>
               <dd>{frontmatter.author.name}</dd>
@@ -139,7 +139,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
               {frontmatter.tags.map((tag) => (
                 <li
                   key={tag}
-                  className="rounded-full bg-zinc-100 px-3 py-1 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"
+                  className="rounded-full bg-background-elevated px-3 py-1 text-xs text-foreground-muted"
                 >
                   {tag}
                 </li>
@@ -148,11 +148,11 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           ) : null}
         </header>
 
-        <div className="border-t border-zinc-200 pt-8 dark:border-zinc-800">
+        <div className="border-t border-border pt-8">
           <Component />
         </div>
 
-        <p className="mt-10 border-t border-zinc-200 pt-6 text-sm text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
+        <p className="mt-10 border-t border-border pt-6 text-sm text-foreground-muted">
           This article is for general educational purposes and is not a
           substitute for individualized medical or professional advice. Consult
           a qualified professional before making changes to your health,
@@ -163,11 +163,11 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           <section aria-labelledby="references-heading" className="mt-8">
             <h2
               id="references-heading"
-              className="text-xl font-semibold text-zinc-900 dark:text-zinc-50"
+              className="text-xl font-semibold text-foreground"
             >
               References
             </h2>
-            <ol className="mt-3 list-decimal space-y-1 pl-6 text-sm text-zinc-600 dark:text-zinc-400">
+            <ol className="mt-3 list-decimal space-y-1 pl-6 text-sm text-foreground-muted">
               {frontmatter.references.map((reference) => (
                 <li key={reference.label}>
                   {reference.url ? (
@@ -186,7 +186,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           </section>
         ) : null}
 
-        <p className="mt-8 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-8 text-sm text-foreground-muted">
           Looking to put this into practice?{" "}
           <Link href="/coaching" className="underline hover:no-underline">
             Explore coaching

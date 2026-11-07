@@ -122,10 +122,12 @@ Recorded here so nobody has to rediscover it. No secret values belong in this fi
 
 ## Content-Security-Policy
 
-The site doesn't send a Content-Security-Policy today: there are no security headers in the code, and `public/_headers` only sets caching for `/_next/static/*`. If one is added later (in code or as a Cloudflare Transform Rule), it must allow:
+Since 2026-11-06 the site sends a Content-Security-Policy that limits framing, `<base>`, plugins and form targets but not scripts, frames or requests (see `docs/deployment.md`, "Security headers"), so nothing below needs an allowlist today. If a stricter policy with `script-src`, `frame-src` or `connect-src` is added later, it must allow:
 
 - the Cal.com embed: `script-src https://app.cal.com`, `frame-src https://app.cal.com https://cal.com`, `connect-src https://app.cal.com`
 - Turnstile: `script-src https://challenges.cloudflare.com`, `frame-src https://challenges.cloudflare.com`
+- Cloudflare Web Analytics (injected by Cloudflare): `script-src https://static.cloudflareinsights.com`, `connect-src https://cloudflareinsights.com`
+- Next.js's inline scripts and the JSON-LD blocks: `'unsafe-inline'` in `script-src`, since every page is prerendered (per-request nonces would make pages dynamic and skip the static cache)
 
 ## How to test locally
 
